@@ -56,6 +56,11 @@ const el = {
 let calcTimeout;
 
 const init = async () => {
+    // Detect if embedded in iframe for clean SEO page display
+    if (window.self !== window.top) {
+        document.body.classList.add('is-iframe');
+    }
+
     // Set smart defaults if no state loaded via URL
     const params = new URLSearchParams(window.location.search);
     if (!params.get('amount') && !el.amount.value) {

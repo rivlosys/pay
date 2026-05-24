@@ -31,7 +31,8 @@ body {
 
 header { background: var(--card-bg); border-bottom: 1px solid var(--border); padding: 0.75rem 0; }
 nav { display: flex; justify-content: space-between; align-items: center; }
-.logo { display: flex; align-items: center; gap: 0.5rem; font-weight: 600; }
+.logo { display: flex; align-items: center; gap: 0.6rem; font-weight: 600; }
+.logo svg { flex-shrink: 0; }
 
 .hero { text-align: center; padding: 4rem 0 3rem; }
 h1 { font-size: 3rem; font-weight: 800; margin-bottom: 0.75rem; transition: opacity 0.3s; letter-spacing: -0.025em; }
@@ -239,6 +240,20 @@ footer { margin-top: 5rem; padding: 3rem 0; border-top: 1px solid var(--border);
 
 .hidden { display: none !important; }
 .muted { color: var(--text-muted); font-size: 0.875rem; }
+
+/* Iframe Embedding Utility */
+body.is-iframe header, 
+body.is-iframe footer, 
+body.is-iframe .hero, 
+body.is-iframe .content-seo, 
+body.is-iframe .history-section, 
+body.is-iframe .faq-section, 
+body.is-iframe .link-grid, 
+body.is-iframe #sticky-cta {
+    display: none !important;
+}
+body.is-iframe main { padding: 0; }
+body.is-iframe .card { border: none; box-shadow: none; padding: 0; }
 
 @media (max-width: 600px) {
     h1 { font-size: 1.8rem; }
