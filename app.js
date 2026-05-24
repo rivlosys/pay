@@ -36,6 +36,9 @@ const el = {
     skeleton: document.getElementById('loading-skeleton'),
     resultArea: document.getElementById('result-area'),
     resultText: document.getElementById('result-text'),
+    monthlyTakehome: document.getElementById('monthly-takehome'),
+    annualTakehome: document.getElementById('annual-takehome'),
+    hourlyTakehome: document.getElementById('hourly-takehome'),
     resultBreakdown: document.getElementById('result-breakdown'),
     resultCount: document.getElementById('result-count'),
     feedbackRow: document.getElementById('feedback-row'),
@@ -84,9 +87,13 @@ const init = async () => {
 
 const updateYearUI = () => {
     if (!TAX_DATA) return;
-    document.querySelectorAll('.dynamic-year').forEach(e => e.textContent = TAX_DATA.year);
-    if (el.metaDesc) el.metaDesc.content = el.metaDesc.content.replace(/202[0-9]/g, TAX_DATA.year);
-    if (el.h1) el.h1.textContent = el.h1.textContent.replace(/202[0-9]/g, TAX_DATA.year);
+    const yearStr = TAX_DATA.year.toString();
+    
+    document.querySelectorAll('.dynamic-year').forEach(e => e.textContent = yearStr);
+    
+    // Expanded regex to catch and replace any variants of 2024 or 2025 with the true dataset year
+    if (el.metaDesc) el.metaDesc.content = el.metaDesc.content.replace(/202[0-9]/g, yearStr);
+    if (el.h1) el.h1.textContent = el.h1.textContent.replace(/202[0-9]/g, yearStr);
 };
 
 const loadTaxData = async () => {
@@ -350,10 +357,11 @@ const displayResult = (annualGross, country, period, r, inputVal) => {
         </div>
     `;
 
-    el.resultText.innerHTML = `
-        <div>Take-Home: $${perMonth}/mo</div>
-        <div class="keep-rate-line">You keep: ${keepRate}% of your salary</div>
-    `;
+    if (el.monthlyTakehome) el.monthlyTakehome.textContent = `$${perMonth}`;
+    if (el.annualTakehome) el.annualTakehome.textContent = `$${perYear}`;
+    if (el.hourlyTakehome) el.hourlyTakehome.textContent = `$${hourly}`;
+
+    el.resultText.innerHTML = `You keep: ${keepRate}% of your salary`;
     
     const rows = country === 'CAN' ? [
         ['Federal Tax', r.tax],
@@ -413,11 +421,18 @@ const displayResult = (annualGross, country, period, r, inputVal) => {
 
 const updateMetadata = (text, gross, country, period, mode, region) => {
     const year = TAX_DATA ? TAX_DATA.year : TAX_YEAR;
-    if (el.h1 && !el.h1.textContent.includes('Salary After Tax')) {
-        el.h1.textContent = text;
+    
+    // Smoothly update the H1 to match the current search
+    if (el.h1) {
+        const formattedGross = parseFloat(gross).toLocaleString(undefined, { maximumFractionDigits: 0 });
+        const currencySymbol = country === 'CAN' ? 'CAD ' : '$';
+        el.h1.textContent = `${currencySymbol}${formattedGross} Salary After Tax — What Do You Actually Take Home?`;
     }
+    
     document.title = `${text} (${country}) — ${year} Calculator`;
-    el.metaDesc.content = `Calculated take-home pay: ${text}. Based on ${TAX_DATA.year} ${country} tax regulations.`;
+    if (el.metaDesc) {
+        el.metaDesc.content = `Calculated take-home pay: ${text}. Based on ${TAX_DATA.year} ${country} tax regulations.`;
+    }
     history.replaceState(null, '', window.location.pathname + `?amount=${gross}&country=${country}&period=${period}&mode=${mode}&region=${region}`);
 };
 
@@ -481,16 +496,27 @@ const handleReset = () => {
     el.to.selectedIndex = 0;
     updateRegions();
     setMode('gross-to-net');
-    updateYearUI();
+    
+    // RESTORE THE HEADING:
+    if (el.h1) {
+        const currentYear = TAX_DATA ? TAX_DATA.year : new Date().getFullYear();
+        el.h1.textContent = `Salary After Tax Calculator — See Your Take‑Home Pay Instantly`;
+    }
+
     document.title = `Paycheck Calculator USA & Canada — Free Take-Home Pay`;
     el.resultArea.classList.add('hidden');
     el.feedbackRow.classList.add('hidden');
+    if (el.resultText) el.resultText.textContent = '';
+    if (el.monthlyTakehome) el.monthlyTakehome.textContent = '$0.00';
+    if (el.annualTakehome) el.annualTakehome.textContent = '$0.00';
+    if (el.hourlyTakehome) el.hourlyTakehome.textContent = '$0.00';
     if (el.resultBreakdown) el.resultBreakdown.textContent = '';
     el.resultViz.innerHTML = '';
     if (el.donateContainer) el.donateContainer.classList.add('hidden');
     history.replaceState(null, '', '/');
     resetFeedbackRow();
     validate();
+    updateYearUI(); // Let this update any stray text layers
 };
 
 const resetFeedbackRow = () => {
