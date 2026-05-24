@@ -104,7 +104,7 @@ const init = async () => {
 };
 
 const updateYearUI = () => {
-    const yearStr = TAX_DATA ? TAX_DATA.year.toString() : '2026';
+    const yearStr = TAX_DATA ? TAX_DATA.year.toString() : TAX_YEAR.toString();
     
     // Update elements explicitly meant to change dynamically
     document.querySelectorAll('.dynamic-year').forEach(e => {
@@ -495,7 +495,7 @@ const displayResult = (annualGross, country, period, r, inputVal) => {
 };
 
 const updateMetadata = (text, gross, country, period, mode, region) => {
-    const year = TAX_DATA ? TAX_DATA.year : '2026';
+    const year = TAX_DATA ? TAX_DATA.year : TAX_YEAR;
     
     if (el.h1) {
         const formattedGross = parseFloat(gross).toLocaleString(undefined, { maximumFractionDigits: 0 });
