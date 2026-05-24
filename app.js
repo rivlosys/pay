@@ -137,10 +137,18 @@ const attachListeners = () => {
     });
 
     el.from.addEventListener('change', updateRegions);
-    el.amount.addEventListener('keydown', e => { if (e.key === 'Enter') handleCalculate(); });
+    el.amount.addEventListener('keydown', e => { 
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            handleCalculate(); 
+        }
+    });
     document.getElementById('mode-gross').onclick = () => setMode('gross-to-net');
     document.getElementById('mode-net').onclick = () => setMode('net-to-gross');
-    el.convertBtn.onclick = handleCalculate;
+    el.convertBtn.onclick = (e) => {
+        e.preventDefault();
+        handleCalculate();
+    };
     el.resetBtn.onclick = handleReset;
     el.themeToggle.onclick = toggleTheme;
     el.pasteBtn.onclick = handlePaste;
@@ -362,6 +370,8 @@ const displayResult = (annualGross, country, period, r, inputVal) => {
     state.resultsCount++;
     localStorage.setItem('resultsCount', state.resultsCount);
     el.resultCount.textContent = `${state.resultsCount} calculations so far`;
+    const emptyHint = document.getElementById('empty-hint');
+    if (emptyHint) emptyHint.classList.add('hidden');
     el.resultArea.classList.remove('hidden');
     el.donateContainer.classList.remove('hidden');
     el.feedbackRow.classList.remove('hidden');
@@ -378,7 +388,7 @@ const updateMetadata = (text, gross, country, period, mode, region) => {
     // We don't change H1 to the result anymore to keep "Smart insight" feel, but we update title
     document.title = `Paycheck: ${text} (${country})`;
     el.metaDesc.content = `Calculated take-home pay: ${text}. Based on ${TAX_DATA.year} ${country} tax regulations.`;
-    history.replaceState(null, '', `?amount=${gross}&country=${country}&period=${period}&mode=${mode}&region=${region}`);
+    history.replaceState(null, '', window.location.pathname + `?amount=${gross}&country=${country}&period=${period}&mode=${mode}&region=${region}`);
 };
 
 const addHistory = (item) => {
