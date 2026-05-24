@@ -403,7 +403,7 @@ const displayResult = (annualGross, country, period, r, inputVal) => {
         <tr class="total-row"><td>Hourly Take-home</td><td>$${hourly}/hr</td></tr>
     </table>
     <div class="insight-line">${insight}</div>
-    <p class="result-note muted">Estimate based on ${TAX_DATA ? TAX_DATA.year : '2026'} tax rates. No deductions or credits included.</p>`;
+    <p class="result-note muted">Estimate based on <span class="dynamic-year">${TAX_DATA ? TAX_DATA.year : '2026'}</span> tax rates. No deductions or credits included.</p>`;
 
     state.resultsCount++;
     localStorage.setItem('resultsCount', state.resultsCount);
