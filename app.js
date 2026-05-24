@@ -28,7 +28,7 @@ const state = {
 const el = {
     amount: document.getElementById('amount'),
     from: document.getElementById('from-currency'),
-    to: document.getElementById('to-currency'),
+    payPeriod: document.getElementById('pay-period'),
     region: document.getElementById('region'),
     regionGroup: document.getElementById('region-group'),
     convertBtn: document.getElementById('convert-btn'),
@@ -47,6 +47,7 @@ const el = {
     pasteBtn: document.getElementById('paste-btn'),
     h1: document.getElementById('main-h1'),
     metaDesc: document.getElementById('meta-desc'),
+    insightHeadline: document.getElementById('insight-headline'),
     historyChips: document.getElementById('history-chips'),
     reverseModeBtn: document.getElementById('reverse-mode-btn'),
     resultViz: document.getElementById('result-viz')
@@ -70,6 +71,7 @@ const init = async () => {
 
     resetFeedbackRow();
     updateYearUI();
+    document.getElementById('footer-year').textContent = new Date().getFullYear();
 
     // Migrate legacy string history to objects
     state.calcHistory = state.calcHistory.map(h => typeof h === 'string' ? { text: h, amount: 0, country: 'USA', period: 'annual' } : h);
@@ -129,16 +131,17 @@ const parseUrlParams = () => {
     if (el.amount && amt && !isNaN(parseFloat(amt))) {
         el.amount.value = amt;
         if (region) el.region.value = region;
-        if (period) el.to.value = period;
+        if (period) el.payPeriod.value = period;
         validate();
         handleCalculate();
     }
 };
 
 const attachListeners = () => {
-    [el.amount, el.from, el.to, el.region].forEach(input => {
+    [el.amount, el.from, el.payPeriod, el.region].forEach(input => {
         if (!input) return;
         input.addEventListener('input', () => {
+            if (input === el.amount && input.value < 0) input.value = 0;
             validate();
             clearTimeout(calcTimeout);
             if (!el.convertBtn.disabled) {
@@ -166,7 +169,7 @@ const attachListeners = () => {
         el.amount.addEventListener('keydown', e => { 
             if (e.key === 'Enter') {
                 e.preventDefault();
-                handleCalculate(); 
+                el.convertBtn.click(); 
             }
         });
     }
@@ -313,7 +316,7 @@ const handleCalculate = async () => {
     const country = el.from.value;
     const regionId = el.region.value;
     const regionName = el.region.options[el.region.selectedIndex]?.text || 'Regional';
-    const period = el.to.value;
+    const period = el.payPeriod.value;
     const annualInput = toAnnual(inputVal, period);
     
     let annualGross, result;
@@ -390,6 +393,12 @@ const displayResult = (annualGross, country, period, r, inputVal) => {
     const taxRateTotal = (100 - parseFloat(keepRate)).toFixed(1);
     const monthlyLoss = ((annualGross - r.takeHome) / 12).toLocaleString(undefined, {maximumFractionDigits: 0});
     
+    if (el.insightHeadline) {
+        el.insightHeadline.textContent = taxRateTotal > 25 
+            ? `😬 You lose ${taxRateTotal}% of your income to taxes`
+            : `✅ Your effective tax rate is ${taxRateTotal}%`;
+    }
+
     const insight = totalDeductions > 0 
         ? `💸 You're losing ${taxRateTotal}% to taxes<br>≈ $${monthlyLoss}/month goes to deductions`
         : `💡 You have no deductions!`;
@@ -487,7 +496,7 @@ const generateCompareLinks = (annualGross) => {
     container.querySelectorAll('.compare-chip').forEach(chip => {
         chip.onclick = () => {
             el.amount.value = chip.dataset.val;
-            el.to.value = 'annual';
+            el.payPeriod.value = 'annual';
             validate();
             handleCalculate();
             // Smooth scroll back to input for better UX on mobile
@@ -500,7 +509,7 @@ const generateCompareLinks = (annualGross) => {
 const handleReset = () => {
     if (el.amount) el.amount.value = '';
     el.from.selectedIndex = 0;
-    el.to.selectedIndex = 0;
+    el.payPeriod.selectedIndex = 0;
     updateRegions();
     setMode('gross-to-net');
     
@@ -557,7 +566,7 @@ const handleReverseModeToggle = () => {
 
     const divisor = { annual: 1, monthly: 12, biweekly: 26, weekly: 52 }[r.period];
     el.amount.value = (r.takeHome / divisor).toFixed(2);
-    el.to.value = r.period;
+    el.payPeriod.value = r.period;
 
     validate();
     window.scrollTo({ top: el.amount.offsetTop - 100, behavior: 'smooth' });

@@ -16,7 +16,7 @@
     <link rel="icon" type="image/svg+xml" href="favicon.svg">
     <link rel="apple-touch-icon" href="favicon.svg">
     <title>Salary After Tax Calculator — See Your Take‑Home Pay Instantly (USA & Canada)</title>
-    <meta name="description" id="meta-desc" content="Instantly calculate your take-home pay. See how much tax you pay in every US state and Canadian province. Fast, free, and 100% secure.">
+    <meta name="description" id="meta-desc" content="Free paycheck calculator for USA & Canada. Enter your salary → see exact take-home after federal tax, state/province tax, CPP, EI, and Social Security. No signup needed.">
     <meta name="robots" content="index, follow">
     <link rel="canonical" href="https://pay.usecos.app/">
     <link rel="preload" as="style" href="style.css">
@@ -43,128 +43,6 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
-    <style>
-        /* Main Layout Grid Setup */
-        @media (min-width: 768px) {
-            main.container.has-results {
-                display: grid;
-                grid-template-columns: 1fr 1.2fr;
-                gap: 2rem;
-                align-items: start;
-            }
-            main.container.has-results > * {
-                min-width: 0;
-            }
-            .hero, .content-seo, .history-section, .faq-section, .link-grid {
-                grid-column: 1 / -1;
-            }
-        }
-
-        /* KPI Display Cards */
-        .results-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 1rem;
-            margin-bottom: 1.5rem;
-            width: 100%;
-        }
-        .primary-metric {
-            grid-column: span 2;
-            background: rgba(37, 99, 235, 0.06);
-            border: 1px solid var(--primary, #2563eb);
-        }
-        .metric-card {
-            padding: 1.25rem;
-            border-radius: 8px;
-            background: #f8fafc;
-            display: flex;
-            flex-direction: column;
-            gap: 0.25rem;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-        }
-        .dark-mode .metric-card { background: #1e293b; }
-        .metric-label { font-size: 0.85rem; color: var(--muted); font-weight: 500; text-transform: uppercase; letter-spacing: 0.05em; }
-        .metric-value { font-size: 1.6rem; font-weight: 600; color: var(--text); }
-        .keep-rate-line { font-weight: 600; font-size: 1.2rem; margin: 1rem 0; text-align: center; color: var(--primary); width: 100%; }
-        
-        /* Result Dashboard Structural Grid Layout */
-        .result-card {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 1.5rem;
-            padding: 1.5rem;
-            width: 100%;
-        }
-
-        @media (min-width: 640px) {
-            .result-card {
-                grid-template-columns: 1fr 1fr;
-                column-gap: 2.5rem;
-                row-gap: 1.25rem;
-                align-items: start;
-            }
-            
-            /* Force universal announcement bars and summary text elements across both grid blocks */
-            .insight-headline, .results-grid, #result-text, .export-tools, .reverse-cta, #donate-container, .badge, #feedback-row {
-                grid-column: 1 / -1 !important;
-                width: 100%;
-            }
-            
-            /* Pin progress bars layout container directly onto Column 1 (Left) */
-            #result-viz {
-                grid-column: 1;
-                width: 100%;
-                align-self: start;
-            }
-            
-            /* Pin numeric values breakdown grid table directly onto Column 2 (Right) */
-            #result-breakdown {
-                grid-column: 2;
-                width: 100%;
-                margin-top: 0 !important;
-                align-self: start;
-            }
-        }
-
-        /* Visualization Metric Rows Framework */
-        .viz-container {
-            display: flex;
-            flex-direction: column;
-            gap: 1.25rem;
-            width: 100%;
-            background: #f8fafc;
-            padding: 1.5rem;
-            border-radius: 8px;
-            border: 1px solid #e2e8f0;
-            box-sizing: border-box;
-        }
-        .dark-mode .viz-container {
-            background: #1e293b;
-            border-color: #334155;
-        }
-        .viz-row {
-            display: grid !important;
-            grid-template-columns: 45px 1fr 55px !important;
-            align-items: center;
-            gap: 1rem;
-            width: 100%;
-        }
-        .viz-label { font-weight: 500; font-size: 0.9rem; color: var(--text); text-align: left; width: auto; }
-        .viz-bar-bg { width: 100%; height: 14px; background: #e2e8f0; border-radius: 7px; overflow: hidden; position: relative; }
-        .dark-mode .viz-bar-bg { background: #334155; }
-        .viz-bar-fill { height: 100%; border-radius: 7px; transition: width 0.4s ease; }
-        .viz-bar-fill.keep { background: #10b981; }
-        .viz-bar-fill.tax { background: #f43f5e; }
-        .viz-percent { text-align: right; font-weight: 600; font-size: 0.9rem; color: var(--text); width: auto; }
-
-        /* Footer Adaptive Grid */
-        .footer-grid { display: grid; grid-template-columns: 1fr; gap: 1rem; text-align: center; }
-        @media (min-width: 600px) {
-            .footer-grid { grid-template-columns: auto 1fr; text-align: left; }
-            .footer-links { justify-self: end; display: grid; grid-auto-flow: column; gap: 1.5rem; }
-            .footer-links a { margin-left: 0; }
-        }
-    </style>
 
     <script type="application/ld+json">
     {
@@ -258,7 +136,7 @@
     </script>
     <script src="app.js" defer></script>
 </head>
-<body class="light-mode">
+    <body>
     <header>
         <nav class="container">
             <div class="logo">
@@ -274,7 +152,7 @@
 
     <main class="container">
         <section class="hero">
-            <h1 id="main-h1">Salary After Tax Calculator — See Your Take‑Home Pay Instantly</h1>
+            <h1 id="main-h1">Your Take-Home Pay, Instantly</h1>
             <p class="hero-sub">See your real paycheck after federal + state taxes in seconds.</p>
             <div class="trust-bar">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
@@ -313,8 +191,8 @@
                     </select>
                 </div>
                 <div class="input-group">
-                    <label for="to-currency">Pay Period</label>
-                    <select id="to-currency">
+                    <label for="pay-period">Pay Period</label>
+                    <select id="pay-period">
                         <option value="annual">Annual</option>
                         <option value="monthly">Monthly</option>
                         <option value="biweekly">Bi-Weekly</option>
@@ -324,7 +202,7 @@
             </div>
 
             <div class="actions">
-                <button id="convert-btn" type="button" class="primary-btn" disabled>
+                <button id="convert-btn" type="button" class="primary-btn" disabled title="Enter your salary above to calculate">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
                     See Your Paycheck →
                 </button>
@@ -340,9 +218,7 @@
         <div id="loading-skeleton" class="skeleton hidden"></div>
         <section id="result-area" class="hidden">
             <div class="result-card">
-                <div class="insight-headline">
-                    😬 You lose nearly 1/3 of your income to taxes
-                </div>
+                <div id="insight-headline" class="insight-headline"></div>
                 <div class="results-grid">
                     <div class="metric-card primary-metric">
                         <span class="metric-label">Monthly Take-Home</span>
@@ -387,7 +263,7 @@
             </div>
         </section>
 
-        <section class="content-seo container">
+        <section class="content-seo">
             <div class="seo-text">
                 <h2>How to Calculate Your Take-Home Pay</h2>
                 <p>Estimating your net income can be complicated. Our <strong>free paycheck calculator</strong> simplifies federal income tax, Social Security, Medicare, and regional taxes for both the USA and Canada. Whether you are hourly or salaried, understanding your "money in the bank" is the first step toward financial freedom.</p>
@@ -395,13 +271,13 @@
                 <h3>Why is my take-home pay lower than my salary?</h3>
                 <p>The difference between your gross salary and your take-home pay is primarily due to tax withholdings. In the USA, this includes Federal Income Tax and FICA (Social Security and Medicare). In Canada, your employer deducts Federal Tax, CPP (Canada Pension Plan), and EI (Employment Insurance).</p>
 
-                <h2>How much tax will I pay on $80,000?</h2>
+                <h3>How much tax will I pay on $80,000?</h3>
                 <p>On an $80,000 salary, your tax burden depends heavily on your location. In high-tax states or provinces, you might see up to 30% in total deductions, while in zero-income tax regions, federal taxes remain the primary deduction.</p>
 
-                <h2>$100K salary after tax (USA vs Canada)</h2>
+                <h3>$100K salary after tax (USA vs Canada)</h3>
                 <p>A $100,000 USD salary often results in a higher take-home pay than a $100,000 CAD salary due to differences in federal tax brackets and social contribution rates like CPP/EI vs FICA.</p>
 
-                <h2>Monthly vs Biweekly take-home differences</h2>
+                <h3>Monthly vs Biweekly take-home differences</h3>
                 <p>While the annual total remains the same, biweekly pay periods mean 26 checks per year, resulting in two months with three paychecks, which can significantly help with budgeting compared to 12 fixed monthly payments.</p>
             </div>
         </section>
@@ -444,8 +320,8 @@
             </div>
             <div class="grid-item">
                 <h4>📘 Resources</h4>
-                <a href="guide.html">How to Read Your Paycheck</a>
-                <a href="guide.html">Tax Brackets Explained</a>
+                <a href="guide.html#how-to-read">How to Read Your Paycheck</a>
+                <a href="guide.html#tax-brackets">Tax Brackets Explained</a>
             </div>
             <div class="grid-item">
                 <h4>🛠 Rivlosys Tools</h4>
@@ -457,7 +333,7 @@
 
     <footer>
         <div class="container footer-grid">
-            <p>Made by <strong>Rivlosys</strong></p>
+            <p class="muted">© <span id="footer-year"></span> Rivlosys</p>
             <div class="footer-links">
                 <a href="contact.html">Contact Us</a>
                 <a href="disclaimer.html">Disclaimer</a>
