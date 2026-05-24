@@ -136,6 +136,18 @@ const attachListeners = () => {
         });
     });
 
+    // Sticky CTA logic
+    window.addEventListener('scroll', () => {
+        const rect = el.convertBtn.getBoundingClientRect();
+        const sticky = document.getElementById('sticky-cta');
+        if (rect.bottom < 0) sticky.classList.add('show');
+        else sticky.classList.remove('show');
+    });
+    document.getElementById('sticky-cta').onclick = () => {
+        el.amount.focus();
+        window.scrollTo({ top: el.amount.offsetTop - 100, behavior: 'smooth' });
+    };
+
     el.from.addEventListener('change', updateRegions);
     el.amount.addEventListener('keydown', e => { 
         if (e.key === 'Enter') {
@@ -163,10 +175,11 @@ const attachListeners = () => {
     document.getElementById('copy-btn').onclick = () => {
         navigator.clipboard.writeText(el.resultText.textContent);
         const btn = document.getElementById('copy-btn');
-        btn.innerHTML = SVGS.check;
+        const originalHTML = btn.innerHTML;
+        btn.innerHTML = `Copied ✓`;
         btn.style.color = 'var(--primary)';
         setTimeout(() => {
-            btn.innerHTML = SVGS.copy;
+            btn.innerHTML = originalHTML;
             btn.style.color = '';
         }, 1500);
     };
@@ -298,7 +311,7 @@ const handleCalculate = async () => {
     el.convertBtn.disabled = true;
 
     // Simulate brief processing delay
-    await new Promise(r => setTimeout(r, 400));
+    await new Promise(r => setTimeout(r, 150));
 
     el.skeleton.classList.add('hidden');
     validate();
@@ -357,7 +370,7 @@ const displayResult = (annualGross, country, period, r, inputVal) => {
     const monthlyLoss = ((annualGross - r.takeHome) / 12).toLocaleString(undefined, {maximumFractionDigits: 0});
     
     const insight = totalDeductions > 0 
-        ? ` You're losing ${taxRateTotal}% to taxes. That's ~$${monthlyLoss}/month.`
+        ? `💸 You're losing ${taxRateTotal}% to taxes<br>≈ $${monthlyLoss}/month goes to deductions`
         : `💡 You have no deductions!`;
     const currency = country === 'CAN' ? 'CAD' : 'USD';
 

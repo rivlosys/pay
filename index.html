@@ -152,10 +152,13 @@
 
     <main class="container">
         <section class="hero">
-            <h1 id="main-h1">Free Paycheck Calculator</h1>
+            <h1 id="main-h1">$80,000 Salary After Tax — What Do You Actually Take Home?</h1>
+            <p class="hero-sub">See your real paycheck after federal + state taxes in seconds.</p>
             <div class="trust-bar">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-                <span>No data stored</span>
+                <span>✓ No data stored</span>
+                <span>✓ Runs locally in your browser</span>
+                <span>✓ Updated for 2025 tax rates</span>
             </div>
         </section>
 
@@ -215,6 +218,9 @@
         <div id="loading-skeleton" class="skeleton hidden"></div>
         <section id="result-area" class="hidden">
             <div class="result-card">
+                <div class="insight-headline">
+                    😬 You lose nearly 1/3 of your income to taxes
+                </div>
                 <h2 id="result-text">Take-Home: $0.00</h2>
                 <div id="result-viz" class="viz-container"></div>
                 <div id="result-breakdown" class="result-breakdown muted"></div>
@@ -253,6 +259,15 @@
                 
                 <h3>Why is my take-home pay lower than my salary?</h3>
                 <p>The difference between your gross salary and your take-home pay is primarily due to tax withholdings. In the USA, this includes Federal Income Tax and FICA (Social Security and Medicare). In Canada, your employer deducts Federal Tax, CPP (Canada Pension Plan), and EI (Employment Insurance).</p>
+
+                <h2>How much tax will I pay on $80,000?</h2>
+                <p>On an $80,000 salary, your tax burden depends heavily on your location. In high-tax states or provinces, you might see up to 30% in total deductions, while in zero-income tax regions, federal taxes remain the primary deduction.</p>
+
+                <h2>$100K salary after tax (USA vs Canada)</h2>
+                <p>A $100,000 USD salary often results in a higher take-home pay than a $100,000 CAD salary due to differences in federal tax brackets and social contribution rates like CPP/EI vs FICA.</p>
+
+                <h2>Monthly vs Biweekly take-home differences</h2>
+                <p>While the annual total remains the same, biweekly pay periods mean 26 checks per year, resulting in two months with three paychecks, which can significantly help with budgeting compared to 12 fixed monthly payments.</p>
             </div>
         </section>
 
@@ -288,8 +303,8 @@
         <section class="link-grid">
             <div class="grid-item">
                 <h4>🧮 Quick Tools</h4>
-                <a href="index.html?country=USA">Paycheck Calculator USA</a>
-                <a href="index.html?country=CAN">Paycheck Calculator Canada</a>
+                <a href="/usa-paycheck-calculator">Paycheck Calculator USA</a>
+                <a href="/canada-paycheck-calculator">Paycheck Calculator Canada</a>
                 <a href="https://pay.usecos.app/?mode=net-to-gross">Reverse Paycheck Calc</a>
             </div>
             <div class="grid-item">
@@ -315,5 +330,6 @@
             </div>
         </div>
     </footer>
+    <button id="sticky-cta" class="primary-btn">See Your Paycheck</button>
 </body>
 </html>

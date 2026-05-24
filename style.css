@@ -35,7 +35,10 @@ nav { display: flex; justify-content: space-between; align-items: center; }
 
 .hero { text-align: center; padding: 4rem 0 3rem; }
 h1 { font-size: 3rem; font-weight: 800; margin-bottom: 0.75rem; transition: opacity 0.3s; letter-spacing: -0.025em; }
+.hero-sub { font-size: 1.25rem; color: var(--text-muted); margin-bottom: 1.5rem; }
 .trust-bar { display: inline-flex; align-items: center; gap: 0.5rem; color: var(--text-muted); font-size: 0.875rem; border: 1px solid var(--border); padding: 0.25rem 0.75rem; border-radius: 99px; }
+.trust-bar span { margin-right: 0.5rem; }
+.trust-bar span:last-child { margin-right: 0; }
 
 .card { background: var(--card-bg); border: 1px solid var(--border); border-radius: var(--radius); padding: 2rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
 .input-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
@@ -74,6 +77,15 @@ button.secondary-btn:hover { background: var(--bg); border-color: var(--primary)
 @keyframes pulse { 0%, 100% { opacity: 0.5; } 50% { opacity: 0.8; } }
 
 .result-card { text-align: center; background: var(--card-bg); border: 1px solid var(--border); border-radius: var(--radius); padding: 2.5rem; margin: 2rem 0; }
+.insight-headline {
+    font-size: 1.15rem;
+    font-weight: 600;
+    color: #ef4444;
+    margin-bottom: 1.25rem;
+    padding: 0.75rem;
+    background: rgba(239, 68, 68, 0.08);
+    border-radius: 8px;
+}
 #result-text {
     font-variant-numeric: tabular-nums;
     font-size: 2.25rem;
@@ -148,6 +160,22 @@ button.secondary-btn:hover { background: var(--bg); border-color: var(--primary)
 }
 .icon-btn:hover svg, .primary-btn:hover svg {
     transform: scale(1.1);
+}
+
+#sticky-cta {
+    position: fixed;
+    bottom: 1.5rem;
+    left: 1.5rem;
+    right: 1.5rem;
+    z-index: 100;
+    box-shadow: 0 10px 25px rgba(37, 99, 235, 0.4);
+    display: none;
+}
+
+@media (max-width: 600px) {
+    #sticky-cta.show {
+        display: flex;
+    }
 }
 
 .faq-section { margin-top: 3rem; }
