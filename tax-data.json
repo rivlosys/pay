@@ -17,9 +17,31 @@
     },
     "regions": [
       { "id": "none", "label": "No State Tax (TX, FL, WA...)", "type": "none" },
-      { "id": "CA", "label": "California", "type": "flat", "rate": 0.093 },
-      { "id": "NY", "label": "New York", "type": "flat", "rate": 0.0685 },
-      { "id": "OTHER", "label": "Other State (Avg)", "type": "flat", "rate": 0.05 }
+      { 
+        "id": "CA", 
+        "label": "California", 
+        "type": "progressive", 
+        "brackets": [
+          { "min": 0, "max": 10412, "rate": 0.01, "base": 0 },
+          { "min": 10412, "max": 24684, "rate": 0.02, "base": 104.12 },
+          { "min": 24684, "max": 38959, "rate": 0.04, "base": 389.56 },
+          { "min": 38959, "max": 54081, "rate": 0.06, "base": 960.56 },
+          { "min": 54081, "max": 68350, "rate": 0.08, "base": 1867.88 },
+          { "min": 68350, "max": 349137, "rate": 0.093, "base": 3009.40 }
+        ]
+      },
+      { 
+        "id": "NY", 
+        "label": "New York", 
+        "type": "progressive", 
+        "brackets": [
+          { "min": 0, "max": 8500, "rate": 0.04, "base": 0 },
+          { "min": 8500, "max": 11700, "rate": 0.045, "base": 340 },
+          { "min": 11700, "max": 13900, "rate": 0.0525, "base": 484 },
+          { "min": 13900, "max": 21400, "rate": 0.0585, "base": 600 }
+        ]
+      },
+      { "id": "OTHER", "label": "Other State (Rough Estimate)", "type": "flat", "rate": 0.05 }
     ]
   },
   "CAN": {
@@ -37,9 +59,36 @@
       "ei_cap": 1049.12
     },
     "regions": [
-      { "id": "ON", "label": "Ontario", "type": "flat", "rate": 0.09 },
-      { "id": "BC", "label": "British Columbia", "type": "flat", "rate": 0.077 },
-      { "id": "AB", "label": "Alberta", "type": "flat", "rate": 0.10 },
+      { 
+        "id": "ON", 
+        "label": "Ontario", 
+        "type": "progressive", 
+        "brackets": [
+          { "min": 0, "max": 51446, "rate": 0.0505, "base": 0 },
+          { "min": 51446, "max": 102894, "rate": 0.0915, "base": 2598.02 },
+          { "min": 102894, "max": 150000, "rate": 0.1116, "base": 7305.51 }
+        ]
+      },
+      { 
+        "id": "BC", 
+        "label": "British Columbia", 
+        "type": "progressive", 
+        "brackets": [
+          { "min": 0, "max": 47937, "rate": 0.0506, "base": 0 },
+          { "min": 47937, "max": 95875, "rate": 0.077, "base": 2425.61 },
+          { "min": 95875, "max": 110057, "rate": 0.105, "base": 6116.84 }
+        ]
+      },
+      { 
+        "id": "AB", 
+        "label": "Alberta", 
+        "type": "progressive", 
+        "brackets": [
+          { "min": 0, "max": 148269, "rate": 0.10, "base": 0 },
+          { "min": 148269, "max": 177922, "rate": 0.12, "base": 14826.9 },
+          { "min": 177922, "max": 237230, "rate": 0.13, "base": 18385.26 }
+        ]
+      },
       { "id": "QC", "label": "Quebec", "type": "flat", "rate": 0.14 }
     ]
   }

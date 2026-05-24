@@ -138,9 +138,9 @@ const setMode = (mode) => {
     state.mode = mode;
     document.getElementById('mode-gross').classList.toggle('active', mode === 'gross-to-net');
     document.getElementById('mode-net').classList.toggle('active', mode === 'net-to-gross');
-    el.amount.placeholder = mode === 'gross-to-net' ? "0.00" : "Desired net amount";
+    el.amount.placeholder = mode === 'gross-to-net' ? "e.g. 100000" : "e.g. 5000";
     document.querySelector('label[for="amount"]').textContent = 
-        mode === 'gross-to-net' ? 'Gross Pay' : 'Desired Net Pay';
+        mode === 'gross-to-net' ? 'Salary (before tax)' : 'Target Take-Home';
 };
 
 const validate = () => {
@@ -170,7 +170,7 @@ const calcReverse = (targetNet, country, stateRate) => {
     for (let i = 0; i < 100; i++) {
         let mid = (low + high) / 2;
         let res = country === 'CAN' ? calcCanada(mid, stateRate) : calcUSA(mid, stateRate);
-        if (Math.abs(res.takeHome - targetNet) < 0.01) return mid;
+        if (Math.abs(res.takeHome - targetNet) < 1) return mid;
         if (res.takeHome < targetNet) low = mid;
         else high = mid;
     }
@@ -194,9 +194,11 @@ const getRegionTax = (annual, country, regionId) => {
 
 const calcCanada = (annual, regionId) => {
     const d = TAX_DATA.CAN.federal;
-    const cpp = Math.min(annual * d.cpp_rate, d.cpp_cap);
+    const cppBase = Math.max(0, annual - 3500);
+    const cpp = Math.min(cppBase * d.cpp_rate, d.cpp_cap);
     const ei = Math.min(annual * d.ei_rate, d.ei_cap);
-    const fed = calcBrackets(annual, d.brackets);
+    const taxable = Math.max(0, annual - 15000);
+    const fed = calcBrackets(taxable, d.brackets);
     const stateTax = getRegionTax(annual, 'CAN', regionId);
     return { takeHome: annual - (cpp + ei + fed + stateTax), cpp, ei, tax: fed, stateTax };
 };
@@ -205,7 +207,8 @@ const calcUSA = (annual, regionId) => {
     const d = TAX_DATA.USA.federal;
     const ss = Math.min(annual * d.ss_rate, d.ss_cap);
     const medicare = annual * d.medicare_rate;
-    const fed = calcBrackets(annual, d.brackets);
+    const taxable = Math.max(0, annual - 14600);
+    const fed = calcBrackets(taxable, d.brackets);
     const stateTax = getRegionTax(annual, 'USA', regionId);
     return { takeHome: annual - (ss + medicare + fed + stateTax), ss, medicare, tax: fed, stateTax };
 };
@@ -216,7 +219,8 @@ const handleCalculate = async () => {
     if (inputVal <= 0 || isNaN(inputVal)) return;
     const country = el.from.value;
     const regionId = el.region.value;
-    const regionName = el.region.options[el.region.selectedIndex]?.text?.split(' (')[0] || 'Regional';
+    const selectedOption = el.region.options[el.region.selectedIndex];
+    const regionName = selectedOption?.text || 'Regional';
     const period = el.to.value;
     const annualInput = toAnnual(inputVal, period);
     
@@ -227,7 +231,7 @@ const handleCalculate = async () => {
         annualGross = annualInput;
     }
     result = country === 'CAN' ? calcCanada(annualGross, regionId) : calcUSA(annualGross, regionId);
-    state.lastResult = { gross: annualGross, country, period, region: el.region.value, regionName, ...result };
+    state.lastResult = { gross: annualGross, country, period, region: regionId, regionName, ...result };
 
     // Show loading skeleton
     el.resultArea.classList.add('hidden');
@@ -245,27 +249,44 @@ const handleCalculate = async () => {
 const displayResult = (annualGross, country, period, r, inputVal) => {
     const perMonth = (r.takeHome / 12).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     const perYear = r.takeHome.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-    const text = `Take-Home: $${perMonth}/mo ($${perYear}/yr)`;
+    const hourly = (r.takeHome / 2080).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     
-    const totalDeductions = r.tax + (r.stateTax ?? 0) + (r.ss ?? 0) + (r.medicare ?? 0) + (r.cpp ?? 0) + (r.ei ?? 0);
-    const effectiveRate = ((totalDeductions / annualGross) * 100).toFixed(1);
+    const keepRate = ((r.takeHome / annualGross) * 100).toFixed(1);
+    const getPct = (val) => `(${((val / annualGross) * 100).toFixed(1)}%)`;
     
-    el.resultText.textContent = text;
-    el.resultBreakdown.innerHTML = country === 'CAN' ? `
+    el.resultText.innerHTML = `
+        <div>Take-Home: $${perMonth}/mo</div>
+        <div class="keep-rate-line">You keep: ${keepRate}% of your salary</div>
+    `;
+    
+    const rows = country === 'CAN' ? [
+        ['Federal Tax', r.tax],
+        [r.regionName, r.stateTax],
+        ['CPP', r.cpp],
+        ['EI', r.ei]
+    ] : [
+        ['Federal Tax', r.tax],
+        [r.regionName, r.stateTax],
+        ['Social Security', r.ss],
+        ['Medicare', r.medicare]
+    ];
+
+    const tableContent = rows.map(([label, val]) => 
+        `<tr><td>${label}</td><td>$${val.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ${getPct(val)}</td></tr>`
+    ).join('');
+
+    const largest = rows.reduce((prev, current) => (prev[1] > current[1]) ? prev : current);
+    const insight = `💡 ${largest[0]} is your largest deduction.`;
+    const currency = country === 'CAN' ? 'CAD' : 'USD';
+
+    el.resultBreakdown.innerHTML = `
+    <div class="muted" style="margin-bottom: 0.75rem;">All amounts in ${currency}</div>
     <table class="breakdown-table">
-        <tr><td>Federal Tax</td><td>$${r.tax.toFixed(2)}</td></tr>
-        <tr><td>${r.regionName}</td><td>$${r.stateTax.toFixed(2)}</td></tr>
-        <tr><td>CPP</td><td>$${r.cpp.toFixed(2)}</td></tr>
-        <tr><td>EI</td><td>$${r.ei.toFixed(2)}</td></tr>
-        <tr class="total-row"><td>Total Rate</td><td>${effectiveRate}%</td></tr>
-    </table>` : `
-    <table class="breakdown-table">
-        <tr><td>Federal Tax</td><td>$${r.tax.toFixed(2)}</td></tr>
-        <tr><td>${r.regionName}</td><td>$${r.stateTax.toFixed(2)}</td></tr>
-        <tr><td>Social Security</td><td>$${r.ss.toFixed(2)}</td></tr>
-        <tr><td>Medicare</td><td>$${r.medicare.toFixed(2)}</td></tr>
-        <tr class="total-row"><td>Total Rate</td><td>${effectiveRate}%</td></tr>
-    </table>`;
+        ${tableContent}
+        <tr class="total-row"><td>You keep</td><td>${keepRate}%</td></tr>
+        <tr class="total-row"><td>Hourly Take-home</td><td>$${hourly}/hr</td></tr>
+    </table>
+    <div class="insight-line">${insight}</div>`;
 
     state.resultsCount++;
     localStorage.setItem('resultsCount', state.resultsCount);
@@ -274,12 +295,15 @@ const displayResult = (annualGross, country, period, r, inputVal) => {
     el.donateContainer.classList.remove('hidden');
     el.feedbackRow.classList.remove('hidden');
 
-    updateMetadata(text, inputVal, country, period, state.mode, r.region);
-    addHistory({ text, amount: inputVal, country, period, region: r.region });
+    const metaText = `Take-home: $${perMonth}/mo`;
+    updateMetadata(metaText, inputVal, country, period, state.mode, r.region);
+    
+    const historyText = `$${(annualGross/1000).toFixed(0)}K → $${(r.takeHome/1000).toFixed(1)}K (${r.region})`;
+    addHistory({ text: historyText, amount: inputVal, country, period, region: r.region });
 };
 
 const updateMetadata = (text, gross, country, period, mode, region) => {
-    el.h1.textContent = text;
+    // We don't change H1 to the result anymore to keep "Smart insight" feel, but we update title
     document.title = `Paycheck: ${text} (${country})`;
     el.metaDesc.content = `Calculated take-home pay: ${text}. Based on ${TAX_DATA.year} ${country} tax regulations.`;
     history.replaceState(null, '', `?amount=${gross}&country=${country}&period=${period}&mode=${mode}&region=${region}`);
