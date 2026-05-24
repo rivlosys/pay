@@ -63,6 +63,7 @@
             grid-template-columns: repeat(2, 1fr);
             gap: 1rem;
             margin-bottom: 1.5rem;
+            width: 100%;
         }
         .primary-metric {
             grid-column: span 2;
@@ -76,12 +77,12 @@
             display: flex;
             flex-direction: column;
             gap: 0.25rem;
-            box-shadow: sm;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
         }
         .dark-mode .metric-card { background: #1e293b; }
         .metric-label { font-size: 0.85rem; color: var(--muted); font-weight: 500; text-transform: uppercase; letter-spacing: 0.05em; }
         .metric-value { font-size: 1.6rem; font-weight: 600; color: var(--text); }
-        .keep-rate-line { font-weight: 600; font-size: 1.2rem; margin: 1rem 0; text-align: center; color: var(--primary); }
+        .keep-rate-line { font-weight: 600; font-size: 1.2rem; margin: 1rem 0; text-align: center; color: var(--primary); width: 100%; }
         
         /* Result Dashboard Structural Grid */
         .result-card {
@@ -97,17 +98,35 @@
             }
             /* Keep global text rows stretching across the full card width */
             .insight-headline, .results-grid, #result-text, .export-tools, .reverse-cta, #donate-container, .badge, #feedback-row {
-                grid-column: 1 / -1;
+                grid-column: 1 / -1 !important;
+                width: 100%;
             }
             /* Place the visual color bars on the left side, breakdown table on the right */
             #result-viz {
                 grid-column: 1;
+                width: 100%;
             }
             #result-breakdown {
                 grid-column: 2;
                 margin-top: 0;
+                width: 100%;
             }
         }
+
+        /* Visualization Flex Rows */
+        .viz-row {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 0.75rem;
+            width: 100%;
+        }
+        .viz-label { width: 50px; font-weight: 500; font-size: 0.9rem; }
+        .viz-bar-bg { flex-grow: 1; height: 12px; background: #e2e8f0; border-radius: 6px; overflow: hidden; }
+        .viz-bar-fill { height: 100%; border-radius: 6px; }
+        .viz-bar-fill.keep { background: #2563eb; }
+        .viz-bar-fill.tax { background: #ef4444; }
+        .viz-percent { width: 55px; text-align: right; font-weight: 600; font-size: 0.9rem; }
 
         /* Footer Adaptive Grid */
         .footer-grid { display: grid; grid-template-columns: 1fr; gap: 1rem; text-align: center; }

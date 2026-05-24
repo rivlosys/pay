@@ -400,7 +400,7 @@ const displayResult = (annualGross, country, period, r, inputVal) => {
         <tr class="total-row"><td>Hourly Take-home</td><td>$${hourly}/hr</td></tr>
     </table>
     <div class="insight-line">${insight}</div>
-    <p class="result-note muted">Estimate based on ${TAX_DATA.year} tax rates. No deductions or credits included.</p>`;
+    <p class="result-note muted">Estimate based on ${TAX_DATA ? TAX_DATA.year : '2026'} tax rates. No deductions or credits included.</p>`;
 
     state.resultsCount++;
     localStorage.setItem('resultsCount', state.resultsCount);
@@ -501,7 +501,7 @@ const handleReset = () => {
         el.h1.textContent = `Salary After Tax Calculator — See Your Take‑Home Pay Instantly`;
     }
 
-    document.title = `Paycheck Calculator USA & Canada — Free Take-Home Pay`;
+    document.title = `Paycheck Calculator USA & Canada — Free Take-Home Pay | Rivlosys Tools`;
     el.resultArea.classList.add('hidden');
     el.feedbackRow.classList.add('hidden');
     
