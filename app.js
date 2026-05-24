@@ -349,21 +349,18 @@ const displayResult = (annualGross, country, period, r, inputVal) => {
     const keepRate = ((r.takeHome / annualGross) * 100).toFixed(1);
     const getPct = (val) => `(${((val / annualGross) * 100).toFixed(1)}%)`;
     const taxRate = (100 - parseFloat(keepRate)).toFixed(1);
-    const yearStr = TAX_DATA ? TAX_DATA.year.toString() : '2026';
 
     // FIX: Structure the visualization container correctly to activate your updated CSS subgrid rules
     el.resultViz.innerHTML = `
-        <div class="viz-container">
-            <div class="viz-row">
-                <span class="viz-label">Keep</span>
-                <div class="viz-bar-bg"><div class="viz-bar-fill keep" style="width: ${keepRate}%"></div></div>
-                <span class="viz-percent">${keepRate}%</span>
-            </div>
-            <div class="viz-row">
-                <span class="viz-label">Tax</span>
-                <div class="viz-bar-bg"><div class="viz-bar-fill tax" style="width: ${taxRate}%"></div></div>
-                <span class="viz-percent">${taxRate}%</span>
-            </div>
+        <div class="viz-row">
+            <span class="viz-label">Keep</span>
+            <div class="viz-bar-bg"><div class="viz-bar-fill keep" style="width: ${keepRate}%"></div></div>
+            <span class="viz-percent">${keepRate}%</span>
+        </div>
+        <div class="viz-row">
+            <span class="viz-label">Tax</span>
+            <div class="viz-bar-bg"><div class="viz-bar-fill tax" style="width: ${taxRate}%"></div></div>
+            <span class="viz-percent">${taxRate}%</span>
         </div>
     `;
 
