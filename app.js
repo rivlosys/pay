@@ -34,13 +34,27 @@ const el = {
     pasteBtn: document.getElementById('paste-btn'),
     h1: document.getElementById('main-h1'),
     metaDesc: document.getElementById('meta-desc'),
-    historyChips: document.getElementById('history-chips')
+    historyChips: document.getElementById('history-chips'),
+    reverseModeBtn: document.getElementById('reverse-mode-btn'),
+    resultViz: document.getElementById('result-viz')
 };
+
+let calcTimeout;
 
 const init = async () => {
     await loadTaxData();
     attachListeners();
-    updateRegions();
+
+    // Set smart defaults if no state loaded via URL
+    const params = new URLSearchParams(window.location.search);
+    if (!params.get('amount') && !el.amount.value) {
+        el.from.value = 'CAN';
+        updateRegions();
+        el.region.value = 'ON';
+    } else {
+        updateRegions();
+    }
+
     resetFeedbackRow();
 
     // Migrate legacy string history to objects
@@ -77,12 +91,13 @@ const loadTaxData = async () => {
 
 const parseUrlParams = () => {
     const params = new URLSearchParams(window.location.search);
+    const mode = params.get('mode') || 'gross-to-net';
+    setMode(mode);
+
     const amt = params.get('amount');
     const country = params.get('country');
     const region = params.get('region');
     const period = params.get('period');
-    const mode = params.get('mode') || 'gross-to-net';
-    setMode(mode);
     if (country) {
         el.from.value = country;
         updateRegions();
@@ -97,7 +112,16 @@ const parseUrlParams = () => {
 };
 
 const attachListeners = () => {
-    [el.amount, el.from, el.to, el.region].forEach(input => input.addEventListener('input', validate));
+    [el.amount, el.from, el.to, el.region].forEach(input => {
+        input.addEventListener('input', () => {
+            validate();
+            clearTimeout(calcTimeout);
+            if (!el.convertBtn.disabled) {
+                calcTimeout = setTimeout(handleCalculate, 500);
+            }
+        });
+    });
+
     el.from.addEventListener('change', updateRegions);
     el.amount.addEventListener('keydown', e => { if (e.key === 'Enter') handleCalculate(); });
     document.getElementById('mode-gross').onclick = () => setMode('gross-to-net');
@@ -124,6 +148,7 @@ const attachListeners = () => {
             btn.style.color = '';
         }, 1500);
     };
+    el.reverseModeBtn.onclick = handleReverseModeToggle;
 };
 
 const updateRegions = () => {
@@ -138,14 +163,16 @@ const setMode = (mode) => {
     state.mode = mode;
     document.getElementById('mode-gross').classList.toggle('active', mode === 'gross-to-net');
     document.getElementById('mode-net').classList.toggle('active', mode === 'net-to-gross');
-    el.amount.placeholder = mode === 'gross-to-net' ? "e.g. 100000" : "e.g. 5000";
+    el.amount.placeholder = mode === 'gross-to-net' ? "e.g. 80000" : "e.g. 5000";
     document.querySelector('label[for="amount"]').textContent = 
-        mode === 'gross-to-net' ? 'Salary (before tax)' : 'Target Take-Home';
+        mode === 'gross-to-net' ? 'Salary (before tax)' : 'Target take-home';
 };
 
 const validate = () => {
     const val = parseFloat(el.amount.value);
-    el.convertBtn.disabled = !(val > 0 && val <= 10000000);
+    const isValid = val > 0 && val <= 10000000;
+    el.convertBtn.disabled = !isValid;
+    el.resetBtn.classList.toggle('hidden', !el.amount.value);
 };
 
 const handlePaste = async () => {
@@ -214,13 +241,23 @@ const calcUSA = (annual, regionId) => {
 };
 
 const handleCalculate = async () => {
+    const errorEl = document.getElementById('calc-error');
+    if (errorEl) errorEl.classList.add('hidden');
+
     if (!TAX_DATA) return;
     const inputVal = parseFloat(el.amount.value);
-    if (inputVal <= 0 || isNaN(inputVal)) return;
+    
+    if (isNaN(inputVal) || inputVal <= 0) {
+        if (el.amount.value && errorEl) {
+            errorEl.textContent = "Please enter a valid salary amount.";
+            errorEl.classList.remove('hidden');
+        }
+        return;
+    }
+
     const country = el.from.value;
     const regionId = el.region.value;
-    const selectedOption = el.region.options[el.region.selectedIndex];
-    const regionName = selectedOption?.text || 'Regional';
+    const regionName = el.region.options[el.region.selectedIndex]?.text || 'Regional';
     const period = el.to.value;
     const annualInput = toAnnual(inputVal, period);
     
@@ -254,6 +291,20 @@ const displayResult = (annualGross, country, period, r, inputVal) => {
     const keepRate = ((r.takeHome / annualGross) * 100).toFixed(1);
     const getPct = (val) => `(${((val / annualGross) * 100).toFixed(1)}%)`;
     
+    const taxRate = (100 - parseFloat(keepRate)).toFixed(1);
+    el.resultViz.innerHTML = `
+        <div class="viz-row">
+            <span class="viz-label">Keep</span>
+            <div class="viz-bar-bg"><div class="viz-bar-fill keep" style="width: ${keepRate}%"></div></div>
+            <span class="viz-percent">${keepRate}%</span>
+        </div>
+        <div class="viz-row">
+            <span class="viz-label">Tax</span>
+            <div class="viz-bar-bg"><div class="viz-bar-fill tax" style="width: ${taxRate}%"></div></div>
+            <span class="viz-percent">${taxRate}%</span>
+        </div>
+    `;
+
     el.resultText.innerHTML = `
         <div>Take-Home: $${perMonth}/mo</div>
         <div class="keep-rate-line">You keep: ${keepRate}% of your salary</div>
@@ -276,7 +327,10 @@ const displayResult = (annualGross, country, period, r, inputVal) => {
     ).join('');
 
     const largest = rows.reduce((prev, current) => (prev[1] > current[1]) ? prev : current);
-    const insight = `💡 ${largest[0]} is your largest deduction.`;
+    const deductionPct = totalDeductions > 0 ? Math.round((largest[1] / totalDeductions) * 100) : 0;
+    const insight = totalDeductions > 0 
+        ? `💡 ${largest[0]} makes up ${deductionPct}% of your total deductions.`
+        : `💡 You have no deductions!`;
     const currency = country === 'CAN' ? 'CAD' : 'USD';
 
     el.resultBreakdown.innerHTML = `
@@ -295,9 +349,10 @@ const displayResult = (annualGross, country, period, r, inputVal) => {
     el.donateContainer.classList.remove('hidden');
     el.feedbackRow.classList.remove('hidden');
 
-    const metaText = `Take-home: $${perMonth}/mo`;
+    const metaText = `Take-home: $${perYear}/yr`;
     updateMetadata(metaText, inputVal, country, period, state.mode, r.region);
     
+    generateCompareLinks(annualGross);
     const historyText = `$${(annualGross/1000).toFixed(0)}K → $${(r.takeHome/1000).toFixed(1)}K (${r.region})`;
     addHistory({ text: historyText, amount: inputVal, country, period, region: r.region });
 };
@@ -323,7 +378,7 @@ const renderHistory = () => {
     document.querySelector('.history-section').classList.toggle('hidden', !hasHistory);
     
     el.historyChips.innerHTML = state.calcHistory.map((h, i) => 
-        `<span class="chip" data-idx="${i}">${h.text}</span>`
+        `<span class="chip" data-idx="${i}" title="${h.text}">${h.text}</span>`
     ).join('');
     
     el.historyChips.querySelectorAll('.chip').forEach(chip => {
@@ -340,6 +395,29 @@ const renderHistory = () => {
     });
 };
 
+const generateCompareLinks = (annualGross) => {
+    const container = document.getElementById('compare-links');
+    if (!container) return;
+    const steps = [0.8, 1.2, 1.5];
+    container.innerHTML = steps.map(step => {
+        const val = Math.round((annualGross * step) / 1000) * 1000;
+        const label = val >= 1000 ? `$${(val / 1000).toFixed(0)}K` : `$${val}`;
+        return `<span class="chip compare-chip" data-val="${val}">Try ${label}</span>`;
+    }).join('');
+
+    container.querySelectorAll('.compare-chip').forEach(chip => {
+        chip.onclick = () => {
+            el.amount.value = chip.dataset.val;
+            el.to.value = 'annual';
+            validate();
+            handleCalculate();
+            // Smooth scroll back to input for better UX on mobile
+            const target = el.amount.offsetTop - 100;
+            window.scrollTo({ top: target, behavior: 'smooth' });
+        };
+    });
+};
+
 const handleReset = () => {
     el.amount.value = '';
     el.from.selectedIndex = 0;
@@ -352,6 +430,7 @@ const handleReset = () => {
     el.resultArea.classList.add('hidden');
     el.feedbackRow.classList.add('hidden');
     el.resultBreakdown.textContent = '';
+    el.resultViz.innerHTML = '';
     el.donateContainer.classList.add('hidden');
     history.replaceState(null, '', '/');
     resetFeedbackRow();
@@ -377,6 +456,19 @@ const handleShare = async () => {
         btn.style.color = 'var(--primary)';
         setTimeout(() => btn.style.color = '', 1500);
     } catch (err) { console.error("Could not copy link"); }
+};
+
+const handleReverseModeToggle = () => {
+    if (!state.lastResult) return;
+    const r = state.lastResult;
+    setMode('net-to-gross');
+
+    const divisor = { annual: 1, monthly: 12, biweekly: 26, weekly: 52 }[r.period];
+    el.amount.value = (r.takeHome / divisor).toFixed(2);
+    el.to.value = r.period;
+
+    validate();
+    window.scrollTo({ top: el.amount.offsetTop - 100, behavior: 'smooth' });
 };
 
 const handleExportCSV = () => {

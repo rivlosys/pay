@@ -161,7 +161,7 @@
         <div class="card">
             <div class="tabs">
                 <button id="mode-gross" class="tab-btn active">Gross → Net</button>
-                <button id="mode-net" class="tab-btn">Target Take-Home</button>
+                <button id="mode-net" class="tab-btn">Target take-home</button>
             </div>
             <div class="input-grid">
                 <div class="input-group">
@@ -181,7 +181,7 @@
                     </select>
                 </div>
                 <div class="input-group" id="region-group">
-                    <label for="region">Province / State</label>
+                    <label for="region">Province (Canada) / State (US)</label>
                     <select id="region">
                         <!-- Populated by JS -->
                     </select>
@@ -207,6 +207,7 @@
                     Reset
                 </button>
             </div>
+            <div id="calc-error" class="hidden error-text"></div>
             <p id="empty-hint" class="muted" style="text-align: center; margin-top: 1rem;">Enter your salary to estimate take-home pay</p>
         </div>
 
@@ -214,6 +215,7 @@
         <section id="result-area" class="hidden">
             <div class="result-card">
                 <h2 id="result-text">Take-Home: $0.00</h2>
+                <div id="result-viz" class="viz-container"></div>
                 <div id="result-breakdown" class="result-breakdown muted"></div>
                 <p class="result-note muted">Estimate based on 2025 tax rates. No deductions or credits included.</p>
                 <div class="badge" id="result-count">0 calculations so far</div>
@@ -223,6 +225,11 @@
                     <button id="share-btn" class="icon-btn" aria-label="Share Link" title="Share this estimate"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg></button>
                     <button id="csv-btn" class="icon-btn" aria-label="Download CSV"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></button>
                 </div>
+                <div class="reverse-cta">
+                    <button id="reverse-mode-btn" class="secondary-btn">
+                        What salary gives me this take-home?
+                    </button>
+                </div>
                 <div id="feedback-row" class="feedback-row hidden"></div>
                 <div id="donate-container" class="hidden">
                     <a href="https://www.buymeacoffee.com/rivlosys" target="_blank" rel="noopener noreferrer" class="bmc-btn">
@@ -231,6 +238,10 @@
                     </a>
                     <p class="tagline">Enjoyed it? Keep it free.</p>
                 </div>
+            </div>
+            <div class="compare-box">
+                <p class="muted" style="margin-bottom: 0.75rem;">Compare with other salaries:</p>
+                <div id="compare-links" class="chips-container" style="justify-content: center;"></div>
             </div>
         </section>
 
@@ -265,18 +276,18 @@
 
         <section class="link-grid">
             <div class="grid-item">
-                <h4>Quick Tools</h4>
+                <h4>🧮 Quick Tools</h4>
                 <a href="index.html?country=USA">Paycheck Calculator USA</a>
                 <a href="index.html?country=CAN">Paycheck Calculator Canada</a>
                 <a href="https://pay.usecos.app/?mode=net-to-gross">Reverse Paycheck Calc</a>
             </div>
             <div class="grid-item">
-                <h4>Resources</h4>
+                <h4>📘 Resources</h4>
                 <a href="guide.html">How to Read Your Paycheck</a>
                 <a href="guide.html">Tax Brackets Explained</a>
             </div>
             <div class="grid-item">
-                <h4>Rivlosys Tools</h4>
+                <h4>🛠 Rivlosys Tools</h4>
                 <a href="https://vin.usecos.app/">Free VIN Decoder</a>
                 <a href="https://mortgage.usecos.app/">Mortgage Calculator</a>
             </div>
