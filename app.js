@@ -422,7 +422,6 @@ const displayResult = (annualGross, country, period, r, inputVal) => {
 const updateMetadata = (text, gross, country, period, mode, region) => {
     const year = TAX_DATA ? TAX_DATA.year : TAX_YEAR;
     
-    // Smoothly update the H1 to match the current search
     if (el.h1) {
         const formattedGross = parseFloat(gross).toLocaleString(undefined, { maximumFractionDigits: 0 });
         const currencySymbol = country === 'CAN' ? 'CAD ' : '$';
@@ -497,21 +496,23 @@ const handleReset = () => {
     updateRegions();
     setMode('gross-to-net');
     
-    // RESTORE THE HEADING:
+    // RESTORE THE DEFAULT HEADING
     if (el.h1) {
-        const currentYear = TAX_DATA ? TAX_DATA.year : new Date().getFullYear();
         el.h1.textContent = `Salary After Tax Calculator — See Your Take‑Home Pay Instantly`;
     }
 
     document.title = `Paycheck Calculator USA & Canada — Free Take-Home Pay`;
     el.resultArea.classList.add('hidden');
     el.feedbackRow.classList.add('hidden');
+    
+    // Completely flush inner HTML/Text to prevent layout shifting
     if (el.resultText) el.resultText.textContent = '';
     if (el.monthlyTakehome) el.monthlyTakehome.textContent = '$0.00';
     if (el.annualTakehome) el.annualTakehome.textContent = '$0.00';
     if (el.hourlyTakehome) el.hourlyTakehome.textContent = '$0.00';
-    if (el.resultBreakdown) el.resultBreakdown.textContent = '';
-    el.resultViz.innerHTML = '';
+    if (el.resultBreakdown) el.resultBreakdown.innerHTML = ''; 
+    if (el.resultViz) el.resultViz.innerHTML = '';
+    
     if (el.donateContainer) el.donateContainer.classList.add('hidden');
     history.replaceState(null, '', '/');
     resetFeedbackRow();
