@@ -7,6 +7,15 @@ const CONFIG = {
     DATA_URL: 'tax-data.json'
 };
 
+const SVGS = {
+    check: '✓',
+    copy: '📋',
+    star: '⭐',
+    thumbsUp: '👍',
+    thumbsDown: '👎',
+    info: 'ℹ️'
+};
+
 const state = {
     resultsCount: parseInt(localStorage.getItem('resultsCount')) || 0,
     calcHistory: JSON.parse(localStorage.getItem('calcHistory')) || [],
@@ -42,17 +51,17 @@ const el = {
 let calcTimeout;
 
 const init = async () => {
-    await loadTaxData();
-    attachListeners();
-
     // Set smart defaults if no state loaded via URL
     const params = new URLSearchParams(window.location.search);
     if (!params.get('amount') && !el.amount.value) {
         el.from.value = 'CAN';
-        updateRegions();
+    }
+
+    await loadTaxData();
+    attachListeners();
+
+    if (!params.get('amount') && !el.amount.value) {
         el.region.value = 'ON';
-    } else {
-        updateRegions();
     }
 
     resetFeedbackRow();
@@ -82,10 +91,15 @@ const init = async () => {
 const loadTaxData = async () => {
     try {
         const cached = sessionStorage.getItem('taxData');
-        if (cached) { TAX_DATA = JSON.parse(cached); return; }
+        if (cached) { 
+            TAX_DATA = JSON.parse(cached); 
+            updateRegions(); 
+            return; 
+        }
         const res = await fetch(CONFIG.DATA_URL);
         TAX_DATA = await res.json();
         sessionStorage.setItem('taxData', JSON.stringify(TAX_DATA));
+        updateRegions();
     } catch (err) { console.error("Critical: Failed to load tax data", err); }
 };
 
@@ -152,7 +166,7 @@ const attachListeners = () => {
 };
 
 const updateRegions = () => {
-    if (!TAX_DATA) return;
+    if (!TAX_DATA || !el.from || !el.from.value) return;
     const country = el.from.value;
     const list = TAX_DATA[country]?.regions || [];
     el.region.innerHTML = list.map(r => `<option value="${r.id}">${r.label}</option>`).join('');
@@ -325,6 +339,9 @@ const displayResult = (annualGross, country, period, r, inputVal) => {
     const tableContent = rows.map(([label, val]) => 
         `<tr><td>${label}</td><td>$${val.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ${getPct(val)}</td></tr>`
     ).join('');
+
+    // FIX: Calculate the sum of all deductions first
+    const totalDeductions = rows.reduce((sum, current) => sum + current[1], 0);
 
     const largest = rows.reduce((prev, current) => (prev[1] > current[1]) ? prev : current);
     const deductionPct = totalDeductions > 0 ? Math.round((largest[1] / totalDeductions) * 100) : 0;
