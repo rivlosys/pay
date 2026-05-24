@@ -15,8 +15,8 @@
     <!-- Favicon -->
     <link rel="icon" type="image/svg+xml" href="favicon.svg">
     <link rel="apple-touch-icon" href="favicon.svg">
-    <title id="meta-title">Paycheck Calculator USA & Canada — Free Take-Home Pay</title>
-    <meta name="description" id="meta-desc" content="Calculate your 2025 take-home pay for all US states and Canadian provinces. Free, instant, no signup required.">
+    <title>Paycheck Calculator USA & Canada — Free Take-Home Pay</title>
+    <meta name="description" id="meta-desc" content="Calculate your 2025 take-home pay based on Federal tax regulations for USA and Canada. Free, instant, and secure.">
     <meta name="robots" content="index, follow">
     <link rel="canonical" href="https://pay.usecos.app/">
     <meta name="theme-color" content="#2563eb">
@@ -96,6 +96,16 @@
         "@type": "Question",
         "name": "Does this support both USA and Canada tax brackets?",
         "acceptedAnswer": { "@type": "Answer", "text": "Yes, it supports standard 2025 federal tax brackets for both the United States and Canada." }
+      },
+      {
+        "@type": "Question",
+        "name": "Does it include provincial or state taxes?",
+        "acceptedAnswer": { "@type": "Answer", "text": "Currently, the estimator focuses on Federal taxes. Local state and provincial taxes are not yet included." }
+      },
+      {
+        "@type": "Question",
+        "name": "Is my salary data stored?",
+        "acceptedAnswer": { "@type": "Answer", "text": "No. All calculations happen locally in your browser. No data is sent to our servers." }
       }]
     }
     </script>
@@ -107,14 +117,17 @@
       "step": [
         {
           "@type": "HowToStep",
+          "name": "Enter Amount",
           "text": "Enter your gross pay amount."
         },
         {
           "@type": "HowToStep",
+          "name": "Select Region",
           "text": "Select your country and pay period."
         },
         {
           "@type": "HowToStep",
+          "name": "Calculate",
           "text": "Click calculate to see your take-home pay."
         }
       ]
@@ -141,7 +154,7 @@
             <h1 id="main-h1">Free Paycheck Calculator — USA & Canada (2025)</h1>
             <div class="trust-bar">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-                <span>No data stored · Free forever · 2025 Tax Brackets</span>
+                <span>No data stored · 2025 Fed Tax Data</span>
             </div>
         </section>
 
@@ -154,7 +167,7 @@
                 <div class="input-group">
                     <label for="amount">Gross Pay</label>
                     <div class="input-wrapper">
-                        <input type="number" id="amount" placeholder="0.00" min="0" step="any">
+                        <input type="number" id="amount" placeholder="0.00" min="0" step="any" autocomplete="off">
                         <button id="paste-btn" type="button" aria-label="Paste">
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg>
                         </button>
@@ -243,7 +256,17 @@
                 <h4>Quick Tools</h4>
                 <a href="index.html?country=USA">Paycheck Calculator USA</a>
                 <a href="index.html?country=CAN">Paycheck Calculator Canada</a>
-                <a href="disclaimer.html">2025 Federal Tax Brackets</a>
+                <a href="https://pay.usecos.app/?mode=net-to-gross">Reverse Paycheck Calc</a>
+            </div>
+            <div class="grid-item">
+                <h4>Resources</h4>
+                <a href="guide.html">How to Read Your Paycheck</a>
+                <a href="guide.html">2025 Tax Brackets Explained</a>
+            </div>
+            <div class="grid-item">
+                <h4>Rivlosys Tools</h4>
+                <a href="https://vin.usecos.app/">Free VIN Decoder</a>
+                <a href="contact.html">Contact Us</a>
             </div>
         </section>
     </main>

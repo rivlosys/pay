@@ -2,7 +2,7 @@
 
 const CONFIG = {
     MAX_HISTORY: 5,
-    LAST_UPDATED: "2025-01-24" // Current logic timestamp
+    LAST_UPDATED: "2025-01-27" // Sync with 2025 IRS/CRA updates
 };
 
 const state = {
@@ -29,7 +29,6 @@ const el = {
     themeToggle: document.getElementById('theme-toggle'),
     pasteBtn: document.getElementById('paste-btn'),
     h1: document.getElementById('main-h1'),
-    metaTitle: document.getElementById('meta-title'),
     metaDesc: document.getElementById('meta-desc'),
     historyChips: document.getElementById('history-chips')
 };
@@ -126,7 +125,7 @@ const toAnnual = (amt, period) => ({
 }[period]);
 
 const calcReverse = (targetNet, country) => {
-    let low = targetNet * 1.0;
+    let low = targetNet;
     let high = Math.max(targetNet * 5, 200000);
     for (let i = 0; i < 100; i++) {
         let mid = (low + high) / 2;
@@ -139,27 +138,27 @@ const calcReverse = (targetNet, country) => {
 };
 
 const calcCanada = (annual) => {
-    const cpp = Math.min(annual * 0.0595, 4075.75);
+    const cpp = Math.min(annual * 0.0595, 4075.75); // 2025 Max
     const ei = Math.min(annual * 0.0166, 1049.12);
     let fed = 0;
-    if (annual > 246752) fed = (annual - 246752) * 0.33 + 40438;
-    else if (annual > 173205) fed = (annual - 173205) * 0.29 + 18827;
-    else if (annual > 111733) fed = (annual - 111733) * 0.26 + 12736;
-    else if (annual > 57375) fed = (annual - 57375) * 0.205 + 4386;
+    if (annual > 253414) fed = (annual - 253414) * 0.33 + 58686.73;
+    else if (annual > 177882) fed = (annual - 177882) * 0.29 + 36782.45;
+    else if (annual > 114750) fed = (annual - 114750) * 0.26 + 20368.13;
+    else if (annual > 57375) fed = (annual - 57375) * 0.205 + 8606.25;
     else fed = annual * 0.15;
     return { takeHome: annual - (cpp + ei + fed), cpp, ei, tax: fed };
 };
 
 const calcUSA = (annual) => {
-    const ss = Math.min(annual * 0.062, 10453.20);
+    const ss = Math.min(annual * 0.062, 10918.20); // 2025 Limit $176,100
     const medicare = annual * 0.0145;
     let fed = 0;
-    if (annual > 609350) fed = (annual - 609350) * 0.37 + 183647;
-    else if (annual > 243725) fed = (annual - 243725) * 0.35 + 52832;
-    else if (annual > 191950) fed = (annual - 191950) * 0.32 + 36660;
-    else if (annual > 100525) fed = (annual - 100525) * 0.24 + 17400;
-    else if (annual > 47150) fed = (annual - 47150) * 0.22 + 5147;
-    else if (annual > 11600) fed = (annual - 11600) * 0.12 + 1160;
+    if (annual > 626350) fed = (annual - 626350) * 0.37 + 188770;
+    else if (annual > 250525) fed = (annual - 250525) * 0.35 + 57231;
+    else if (annual > 197300) fed = (annual - 197300) * 0.32 + 40199;
+    else if (annual > 103350) fed = (annual - 103350) * 0.24 + 17651;
+    else if (annual > 48475) fed = (annual - 48475) * 0.22 + 5578.50;
+    else if (annual > 11925) fed = (annual - 11925) * 0.12 + 1192.50;
     else fed = annual * 0.10;
     return { takeHome: annual - (ss + medicare + fed), ss, medicare, tax: fed };
 };
@@ -190,10 +189,10 @@ const handleCalculate = async () => {
 
     el.skeleton.classList.add('hidden');
     validate();
-    displayResult(annualGross, country, period, result);
+    displayResult(annualGross, country, period, result, inputVal);
 };
 
-const displayResult = (annualGross, country, period, r) => {
+const displayResult = (annualGross, country, period, r, inputVal) => {
     const perMonth = (r.takeHome / 12).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     const perYear = r.takeHome.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     const text = `Take-Home: $${perMonth}/mo ($${perYear}/yr)`;
@@ -201,25 +200,23 @@ const displayResult = (annualGross, country, period, r) => {
     
     el.resultText.textContent = text;
     el.resultBreakdown.textContent = country === 'CAN'
-        ? `Federal Tax: $${r.tax.toFixed(2)} | CPP: $${r.cpp.toFixed(2)} | EI: $${r.ei.toFixed(2)} | Effective rate: ${effectiveRate}%`
-        : `Federal Tax: $${r.tax.toFixed(2)} | Soc. Security: $${r.ss.toFixed(2)} | Medicare: $${r.medicare.toFixed(2)} | Effective rate: ${effectiveRate}%`;
+        ? `Fed Tax: $${r.tax.toFixed(2)} | CPP: $${r.cpp.toFixed(2)} | EI: $${r.ei.toFixed(2)} | Effective Rate: ${effectiveRate}%`
+        : `Fed Tax: $${r.tax.toFixed(2)} | Soc. Security: $${r.ss.toFixed(2)} | Medicare: $${r.medicare.toFixed(2)} | Effective Rate: ${effectiveRate}%`;
 
     state.resultsCount++;
     localStorage.setItem('resultsCount', state.resultsCount);
     el.resultCount.textContent = `${state.resultsCount} calculations so far`;
-    el.feedbackRow.classList.remove('hidden');
     el.resultArea.classList.remove('hidden');
     el.donateContainer.classList.remove('hidden');
-    
-    updateMetadata(text, annualGross, country, period, state.mode);
-    addHistory({ text, amount: annualGross, country, period });
+    el.feedbackRow.classList.remove('hidden');
+
+    updateMetadata(text, inputVal, country, period, state.mode);
+    addHistory({ text, amount: inputVal, country, period });
 };
 
 const updateMetadata = (text, gross, country, period, mode) => {
     el.h1.textContent = text;
-    const newTitle = `Paycheck: ${text} (${country})`;
-    el.metaTitle.textContent = newTitle;
-    document.title = newTitle;
+    document.title = `Paycheck: ${text} (${country})`;
     el.metaDesc.content = `Calculated take-home pay: ${text}. Based on 2025 ${country} tax regulations.`;
     history.replaceState(null, '', `?amount=${gross}&country=${country}&period=${period}&mode=${mode}`);
 };
@@ -260,7 +257,6 @@ const handleReset = () => {
     setMode('gross-to-net');
     el.h1.textContent = 'Free Paycheck Calculator — USA & Canada (2025)';
     document.title = 'Paycheck Calculator USA & Canada — Free Take-Home Pay';
-    el.metaTitle.textContent = 'Paycheck Calculator USA & Canada — Free Take-Home Pay';
     el.metaDesc.content = 'Free paycheck calculator for USA and Canada. See take-home pay after federal tax, CPP, EI, Social Security.';
     el.resultArea.classList.add('hidden');
     el.feedbackRow.classList.add('hidden');
@@ -303,6 +299,7 @@ const handleExportCSV = () => {
     a.setAttribute('href', url);
     a.setAttribute('download', `paycheck-${r.country}-${Date.now()}.csv`);
     a.click();
+    setTimeout(() => window.URL.revokeObjectURL(url), 1000);
 };
 
 const toggleTheme = () => {
