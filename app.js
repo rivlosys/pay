@@ -108,6 +108,11 @@ const attachListeners = () => {
     el.pasteBtn.onclick = handlePaste;
     document.getElementById('share-btn').onclick = handleShare;
     document.getElementById('csv-btn').onclick = handleExportCSV;
+    document.getElementById('clear-history-btn').onclick = () => {
+        state.calcHistory = [];
+        localStorage.removeItem('calcHistory');
+        renderHistory();
+    };
     document.getElementById('print-btn').onclick = () => window.print();
     document.getElementById('copy-btn').onclick = () => {
         navigator.clipboard.writeText(el.resultText.textContent);
@@ -211,7 +216,7 @@ const handleCalculate = async () => {
     if (inputVal <= 0 || isNaN(inputVal)) return;
     const country = el.from.value;
     const regionId = el.region.value;
-    const regionName = el.region.options[el.region.selectedIndex].text.split(' (')[0];
+    const regionName = el.region.options[el.region.selectedIndex]?.text?.split(' (')[0] || 'Regional';
     const period = el.to.value;
     const annualInput = toAnnual(inputVal, period);
     
@@ -246,9 +251,21 @@ const displayResult = (annualGross, country, period, r, inputVal) => {
     const effectiveRate = ((totalDeductions / annualGross) * 100).toFixed(1);
     
     el.resultText.textContent = text;
-    el.resultBreakdown.textContent = country === 'CAN'
-        ? `Fed Tax: $${r.tax.toFixed(2)} | ${r.regionName}: $${r.stateTax.toFixed(2)} | CPP: $${r.cpp.toFixed(2)} | EI: $${r.ei.toFixed(2)} | Total Rate: ${effectiveRate}%`
-        : `Fed Tax: $${r.tax.toFixed(2)} | ${r.regionName}: $${r.stateTax.toFixed(2)} | SS: $${r.ss.toFixed(2)} | Medicare: $${r.medicare.toFixed(2)} | Total Rate: ${effectiveRate}%`;
+    el.resultBreakdown.innerHTML = country === 'CAN' ? `
+    <table class="breakdown-table">
+        <tr><td>Federal Tax</td><td>$${r.tax.toFixed(2)}</td></tr>
+        <tr><td>${r.regionName}</td><td>$${r.stateTax.toFixed(2)}</td></tr>
+        <tr><td>CPP</td><td>$${r.cpp.toFixed(2)}</td></tr>
+        <tr><td>EI</td><td>$${r.ei.toFixed(2)}</td></tr>
+        <tr class="total-row"><td>Total Rate</td><td>${effectiveRate}%</td></tr>
+    </table>` : `
+    <table class="breakdown-table">
+        <tr><td>Federal Tax</td><td>$${r.tax.toFixed(2)}</td></tr>
+        <tr><td>${r.regionName}</td><td>$${r.stateTax.toFixed(2)}</td></tr>
+        <tr><td>Social Security</td><td>$${r.ss.toFixed(2)}</td></tr>
+        <tr><td>Medicare</td><td>$${r.medicare.toFixed(2)}</td></tr>
+        <tr class="total-row"><td>Total Rate</td><td>${effectiveRate}%</td></tr>
+    </table>`;
 
     state.resultsCount++;
     localStorage.setItem('resultsCount', state.resultsCount);

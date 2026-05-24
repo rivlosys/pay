@@ -100,6 +100,7 @@ footer { margin-top: 5rem; padding: 3rem 0; border-top: 1px solid var(--border);
 @media (max-width: 600px) {
     h1 { font-size: 1.8rem; }
     .actions { flex-direction: column; }
+    .link-grid { grid-template-columns: 1fr; }
     .footer-grid { flex-direction: column; text-align: center; }
     .footer-links a { margin: 0 0.5rem; }
 }

@@ -100,7 +100,7 @@
       {
         "@type": "Question",
         "name": "Does it include provincial or state taxes?",
-        "acceptedAnswer": { "@type": "Answer", "text": "Currently, the estimator focuses on Federal taxes. Local state and provincial taxes are not yet included." }
+        "acceptedAnswer": { "@type": "Answer", "text": "Yes — select your state or province from the dropdown for a combined federal + regional estimate." }
       },
       {
         "@type": "Question",
@@ -233,7 +233,11 @@
         </section>
 
         <section class="history-section">
-            <h3 class="section-title">Recent Calculations</h3>
+            <h3 class="section-title">Recent Calculations
+                <button id="clear-history-btn" class="icon-btn" aria-label="Clear history" style="width:30px;height:30px;margin-left:auto;">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
+                </button>
+            </h3>
             <div id="history-chips" class="chips-container"></div>
         </section>
 
@@ -249,7 +253,7 @@
             </details>
             <details>
                 <summary>Does this support provinces/states?</summary>
-                <p>Currently, we focus on Federal tax calculations. State and Provincial taxes are not included in this simple estimator.</p>
+                <p>Yes — select your state or province from the dropdown for a combined federal + regional estimate.</p>
             </details>
             <details>
                 <summary>Is my data saved?</summary>
@@ -272,7 +276,7 @@
             <div class="grid-item">
                 <h4>Rivlosys Tools</h4>
                 <a href="https://vin.usecos.app/">Free VIN Decoder</a>
-                <a href="contact.html">Contact Us</a>
+                <a href="https://mortgage.usecos.app/">Mortgage Calculator</a>
             </div>
         </section>
     </main>
