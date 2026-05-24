@@ -417,6 +417,7 @@ const displayResult = (annualGross, country, period, r, inputVal) => {
     el.resultArea.classList.remove('hidden');
     el.donateContainer.classList.remove('hidden');
     el.feedbackRow.classList.remove('hidden');
+    document.querySelector('main').classList.add('has-results');
 
     const metaText = `Take-home pay: $${perYear}`;
     updateMetadata(metaText, inputVal, country, period, state.mode, r.region);
@@ -511,6 +512,7 @@ const handleReset = () => {
     document.title = `Paycheck Calculator USA & Canada — Free Take-Home Pay | Rivlosys Tools`;
     el.resultArea.classList.add('hidden');
     el.feedbackRow.classList.add('hidden');
+    document.querySelector('main').classList.remove('has-results');
     
     // Completely flush inner HTML/Text to prevent layout shifting
     if (el.resultText) el.resultText.textContent = '';
