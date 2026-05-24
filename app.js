@@ -1,6 +1,7 @@
 "use strict";
 
 let TAX_DATA = null;
+const TAX_YEAR = new Date().getFullYear();
 
 const CONFIG = {
     MAX_HISTORY: 5,
@@ -85,7 +86,7 @@ const updateYearUI = () => {
     if (!TAX_DATA) return;
     document.querySelectorAll('.dynamic-year').forEach(e => e.textContent = TAX_DATA.year);
     if (el.metaDesc) el.metaDesc.content = el.metaDesc.content.replace(/202[0-9]/g, TAX_DATA.year);
-    if (el.h1 && el.h1.textContent.includes('2025')) el.h1.textContent = el.h1.textContent.replace('2025', TAX_DATA.year);
+    if (el.h1) el.h1.textContent = el.h1.textContent.replace(/202[0-9]/g, TAX_DATA.year);
 };
 
 const loadTaxData = async () => {
