@@ -45,6 +45,22 @@ const init = () => {
     resetFeedbackRow();
     // Hydrate history chips from local storage
     renderHistory();
+    // Load state from URL if present
+    parseUrlParams();
+};
+
+const parseUrlParams = () => {
+    const params = new URLSearchParams(window.location.search);
+    const amt = params.get('amount');
+    const country = params.get('country');
+    const period = params.get('period');
+    if (amt && !isNaN(parseFloat(amt))) {
+        el.amount.value = amt;
+        if (country) el.from.value = country;
+        if (period) el.to.value = period;
+        validate();
+        handleCalculate();
+    }
 };
 
 const attachListeners = () => {
