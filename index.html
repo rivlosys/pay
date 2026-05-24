@@ -3,11 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-M5DQ95JYRM"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-M5DQ95JYRM');
+    </script>
     <!-- Favicon -->
     <link rel="icon" type="image/svg+xml" href="favicon.svg">
     <link rel="apple-touch-icon" href="favicon.svg">
     <title id="meta-title">Paycheck Calculator USA & Canada — Free Take-Home Pay</title>
-    <meta name="description" id="meta-desc" content="Free paycheck calculator for USA and Canada. See take-home pay after federal tax, CPP, EI, Social Security. All states & provinces.">
+    <meta name="description" id="meta-desc" content="Calculate your 2025 take-home pay for all US states and Canadian provinces. Free, instant, no signup required.">
     <meta name="robots" content="index, follow">
     <link rel="canonical" href="https://pay.usecos.app/">
     <meta name="theme-color" content="#2563eb">
@@ -90,6 +99,27 @@
       }]
     }
     </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "HowTo",
+      "name": "How to calculate your paycheck",
+      "step": [
+        {
+          "@type": "HowToStep",
+          "text": "Enter your gross pay amount."
+        },
+        {
+          "@type": "HowToStep",
+          "text": "Select your country and pay period."
+        },
+        {
+          "@type": "HowToStep",
+          "text": "Click calculate to see your take-home pay."
+        }
+      ]
+    }
+    </script>
     <script src="app.js" defer></script>
 </head>
 <body class="light-mode">
@@ -108,7 +138,7 @@
 
     <main class="container">
         <section class="hero">
-            <h1 id="main-h1">Paycheck Calculator</h1>
+            <h1 id="main-h1">Free Paycheck Calculator — USA & Canada (2025)</h1>
             <div class="trust-bar">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
                 <span>No data stored · Free forever · 2025 Tax Brackets</span>
@@ -116,6 +146,10 @@
         </section>
 
         <div class="card">
+            <div class="tabs">
+                <button id="mode-gross" class="tab-btn active">Gross → Net</button>
+                <button id="mode-net" class="tab-btn">Net → Gross</button>
+            </div>
             <div class="input-grid">
                 <div class="input-group">
                     <label for="amount">Gross Pay</label>
@@ -182,6 +216,26 @@
         <section class="history-section">
             <h3 class="section-title">Recent Calculations</h3>
             <div id="history-chips" class="chips-container"></div>
+        </section>
+
+        <section class="faq-section card">
+            <h3>Frequently Asked Questions</h3>
+            <details>
+                <summary>How is take-home pay calculated?</summary>
+                <p>We use the 2025 federal tax brackets for both the US and Canada to estimate your income after tax. It includes Social Security, Medicare, CPP, and EI where applicable.</p>
+            </details>
+            <details>
+                <summary>What's included in deductions?</summary>
+                <p>Calculations include Federal Income Tax, Social Security/Medicare for USA, and CPP/EI for Canada.</p>
+            </details>
+            <details>
+                <summary>Does this support provinces/states?</summary>
+                <p>Currently, we focus on Federal tax calculations. State and Provincial taxes are not included in this simple estimator.</p>
+            </details>
+            <details>
+                <summary>Is my data saved?</summary>
+                <p>No. All calculations are done in your browser. No data is sent to our servers.</p>
+            </details>
         </section>
 
         <section class="link-grid">

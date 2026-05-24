@@ -33,6 +33,10 @@ h1 { font-size: 2.5rem; font-weight: 700; margin-bottom: 0.75rem; transition: op
 .input-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
 .input-group label { display: block; font-size: 0.875rem; font-weight: 500; margin-bottom: 0.5rem; }
 
+.tabs { display: flex; gap: 0.5rem; margin-bottom: 1.5rem; border-bottom: 1px solid var(--border); padding-bottom: 1rem; }
+.tab-btn { background: none; border: none; padding: 0.5rem 1rem; font-size: 0.875rem; color: var(--text-muted); border-radius: 6px; cursor: pointer; }
+.tab-btn.active { background: var(--bg); color: var(--primary); font-weight: 600; }
+
 .input-wrapper { position: relative; display: flex; }
 input, select { width: 100%; padding: 0.75rem 1rem; border: 1px solid var(--border); border-radius: 8px; background: var(--card-bg); color: var(--text); font-size: 1rem; transition: border-color 0.2s; appearance: none; -webkit-appearance: none; }
 input:focus, select:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.1); }
@@ -71,6 +75,12 @@ button.secondary-btn:hover { background: var(--border); }
 .chips-container { display: flex; flex-wrap: wrap; gap: 0.5rem; }
 .chip { padding: 0.4rem 0.8rem; background: var(--card-bg); border: 1px solid var(--border); border-radius: 99px; font-size: 0.8rem; cursor: pointer; transition: all 0.2s; }
 .chip:hover { border-color: var(--primary); color: var(--primary); background: rgba(37, 99, 235, 0.05); }
+
+.faq-section { margin-top: 3rem; }
+.faq-section h3 { margin-bottom: 1.5rem; }
+details { border-bottom: 1px solid var(--border); padding: 1rem 0; cursor: pointer; }
+summary { font-weight: 600; list-style: none; display: flex; justify-content: space-between; align-items: center; }
+details p { margin-top: 0.75rem; color: var(--text-muted); }
 
 .link-grid { margin-top: 4rem; padding: 2rem; background: var(--card-bg); border: 1px solid var(--border); border-radius: var(--radius); }
 .grid-item h4 { margin-bottom: 1rem; font-size: 0.9rem; color: var(--text); }
