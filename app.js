@@ -45,6 +45,8 @@ const SVGS = {
 const init = () => {
     attachListeners();
     resetFeedbackRow();
+    // Migrate legacy string history to objects
+    state.calcHistory = state.calcHistory.map(h => typeof h === 'string' ? { text: h, amount: 0, country: 'USA', period: 'annual' } : h);
     // Hydrate history chips from local storage
     renderHistory();
     // Apply dark mode if persisted
@@ -62,6 +64,8 @@ const parseUrlParams = () => {
     const amt = params.get('amount');
     const country = params.get('country');
     const period = params.get('period');
+    const mode = params.get('mode') || 'gross-to-net';
+    setMode(mode);
     if (amt && !isNaN(parseFloat(amt))) {
         el.amount.value = amt;
         if (country) el.from.value = country;
@@ -96,6 +100,8 @@ const setMode = (mode) => {
     document.getElementById('mode-gross').classList.toggle('active', mode === 'gross-to-net');
     document.getElementById('mode-net').classList.toggle('active', mode === 'net-to-gross');
     el.amount.placeholder = mode === 'gross-to-net' ? "0.00" : "Desired net amount";
+    document.querySelector('label[for="amount"]').textContent = 
+        mode === 'gross-to-net' ? 'Gross Pay' : 'Desired Net Pay';
 };
 
 const validate = () => {
@@ -120,8 +126,8 @@ const toAnnual = (amt, period) => ({
 }[period]);
 
 const calcReverse = (targetNet, country) => {
-    let low = targetNet;
-    let high = targetNet * 5;
+    let low = targetNet * 1.0;
+    let high = Math.max(targetNet * 5, 200000);
     for (let i = 0; i < 100; i++) {
         let mid = (low + high) / 2;
         let res = country === 'CAN' ? calcCanada(mid) : calcUSA(mid);
@@ -183,7 +189,7 @@ const handleCalculate = async () => {
     await new Promise(r => setTimeout(r, 400));
 
     el.skeleton.classList.add('hidden');
-    el.convertBtn.disabled = false;
+    validate();
     displayResult(annualGross, country, period, result);
 };
 
@@ -205,17 +211,17 @@ const displayResult = (annualGross, country, period, r) => {
     el.resultArea.classList.remove('hidden');
     el.donateContainer.classList.remove('hidden');
     
-    updateMetadata(text, annualGross, country, period);
+    updateMetadata(text, annualGross, country, period, state.mode);
     addHistory({ text, amount: annualGross, country, period });
 };
 
-const updateMetadata = (text, gross, country, period) => {
+const updateMetadata = (text, gross, country, period, mode) => {
     el.h1.textContent = text;
     const newTitle = `Paycheck: ${text} (${country})`;
     el.metaTitle.textContent = newTitle;
     document.title = newTitle;
     el.metaDesc.content = `Calculated take-home pay: ${text}. Based on 2025 ${country} tax regulations.`;
-    history.replaceState(null, '', `?amount=${gross}&country=${country}&period=${period}`);
+    history.replaceState(null, '', `?amount=${gross}&country=${country}&period=${period}&mode=${mode}`);
 };
 
 const addHistory = (item) => {
@@ -228,21 +234,21 @@ const addHistory = (item) => {
 };
 
 const renderHistory = () => {
-    el.historyChips.innerHTML = state.calcHistory.map((h, i) => {
-        const label = typeof h === 'string' ? h : h.text;
-        return `<span class="chip" data-idx="${i}">${label}</span>`;
-    }).join('');
+    const hasHistory = state.calcHistory.length > 0;
+    document.querySelector('.history-section').classList.toggle('hidden', !hasHistory);
+    
+    el.historyChips.innerHTML = state.calcHistory.map((h, i) => 
+        `<span class="chip" data-idx="${i}">${h.text}</span>`
+    ).join('');
     
     el.historyChips.querySelectorAll('.chip').forEach(chip => {
         chip.onclick = () => {
             const data = state.calcHistory[chip.dataset.idx];
-            if (typeof data === 'object') {
-                el.amount.value = data.amount;
-                el.from.value = data.country;
-                el.to.value = data.period;
-                validate();
-                handleCalculate();
-            }
+            el.amount.value = data.amount;
+            el.from.value = data.country;
+            el.to.value = data.period;
+            validate();
+            handleCalculate();
         };
     });
 };
@@ -251,7 +257,8 @@ const handleReset = () => {
     el.amount.value = '';
     el.from.selectedIndex = 0;
     el.to.selectedIndex = 0;
-    el.h1.textContent = 'Paycheck Calculator';
+    setMode('gross-to-net');
+    el.h1.textContent = 'Free Paycheck Calculator — USA & Canada (2025)';
     document.title = 'Paycheck Calculator USA & Canada — Free Take-Home Pay';
     el.metaTitle.textContent = 'Paycheck Calculator USA & Canada — Free Take-Home Pay';
     el.metaDesc.content = 'Free paycheck calculator for USA and Canada. See take-home pay after federal tax, CPP, EI, Social Security.';
@@ -279,7 +286,9 @@ const resetFeedbackRow = () => {
 const handleShare = async () => {
     try {
         await navigator.clipboard.writeText(window.location.href);
-        alert("Link copied to clipboard!");
+        const btn = document.getElementById('share-btn');
+        btn.style.color = 'var(--primary)';
+        setTimeout(() => btn.style.color = '', 1500);
     } catch (err) { console.error("Could not copy link"); }
 };
 
