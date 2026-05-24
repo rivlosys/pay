@@ -3,10 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <link rel="apple-touch-icon" href="favicon.svg">
     <title id="meta-title">Paycheck Calculator USA & Canada — Free Take-Home Pay</title>
     <meta name="description" id="meta-desc" content="Free paycheck calculator for USA and Canada. See take-home pay after federal tax, CPP, EI, Social Security. All states & provinces.">
     <meta name="robots" content="index, follow">
     <link rel="canonical" href="https://pay.usecos.app/">
+    <meta name="theme-color" content="#2563eb">
     <meta name="google-site-verification" content="zyUtsY8FCC6ZT__42zRbLUeZsHwuc7UxLgiF5rNwD3w" />
 
     <!-- Open Graph / Facebook -->
@@ -76,8 +80,13 @@
       "@type": "FAQPage",
       "mainEntity": [{
         "@type": "Question",
-        "name": "Is this paycheck calculator free?",
+        "name": "Is the Rivlosys Paycheck Calculator free to use?",
         "acceptedAnswer": { "@type": "Answer", "text": "Yes, it is 100% free and does not store your data." }
+      },
+      {
+        "@type": "Question",
+        "name": "Does this support both USA and Canada tax brackets?",
+        "acceptedAnswer": { "@type": "Answer", "text": "Yes, it supports standard 2025 federal tax brackets for both the United States and Canada." }
       }]
     }
     </script>
@@ -156,10 +165,12 @@
                 <div class="export-tools">
                     <button id="print-btn" class="icon-btn" aria-label="Print"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg></button>
                     <button id="copy-btn" class="icon-btn" aria-label="Copy"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button>
+                    <button id="share-btn" class="icon-btn" aria-label="Share Link"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg></button>
+                    <button id="csv-btn" class="icon-btn" aria-label="Download CSV"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></button>
                 </div>
                 <div id="feedback-row" class="feedback-row hidden"></div>
                 <div id="donate-container" class="hidden">
-                    <a href="https://www.buymeacoffee.com/rivlosys" target="_blank" class="bmc-btn">
+                    <a href="https://www.buymeacoffee.com/rivlosys" target="_blank" rel="noopener noreferrer" class="bmc-btn">
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg>
                         Buy Me a Coffee
                     </a>
@@ -171,6 +182,15 @@
         <section class="history-section">
             <h3 class="section-title">Recent Calculations</h3>
             <div id="history-chips" class="chips-container"></div>
+        </section>
+
+        <section class="link-grid">
+            <div class="grid-item">
+                <h4>Quick Tools</h4>
+                <a href="index.html?country=USA">Paycheck Calculator USA</a>
+                <a href="index.html?country=CAN">Paycheck Calculator Canada</a>
+                <a href="disclaimer.html">2025 Federal Tax Brackets</a>
+            </div>
         </section>
     </main>
 

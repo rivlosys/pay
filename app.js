@@ -6,8 +6,9 @@ const CONFIG = {
 };
 
 const state = {
-    resultsCount: 0,
+    resultsCount: parseInt(localStorage.getItem('resultsCount')) || 0,
     calcHistory: JSON.parse(localStorage.getItem('calcHistory')) || [],
+    lastResult: null,
     isDark: false
 };
 
@@ -69,6 +70,8 @@ const attachListeners = () => {
     el.resetBtn.onclick = handleReset;
     el.themeToggle.onclick = toggleTheme;
     el.pasteBtn.onclick = handlePaste;
+    document.getElementById('share-btn').onclick = handleShare;
+    document.getElementById('csv-btn').onclick = handleExportCSV;
     document.getElementById('print-btn').onclick = () => window.print();
     document.getElementById('copy-btn').onclick = () => {
         navigator.clipboard.writeText(el.resultText.textContent);
@@ -122,11 +125,13 @@ const calcUSA = (annual) => {
 };
 
 const handleCalculate = async () => {
+    if (parseFloat(el.amount.value) <= 0 || isNaN(parseFloat(el.amount.value))) return;
     const gross = parseFloat(el.amount.value);
     const country = el.from.value;
     const period = el.to.value;
     const annual = toAnnual(gross, period);
     const result = country === 'CAN' ? calcCanada(annual) : calcUSA(annual);
+    state.lastResult = { gross, country, period, ...result };
 
     // Show loading skeleton
     el.resultArea.classList.add('hidden');
@@ -171,6 +176,8 @@ const updateMetadata = (text, gross, country, period) => {
 };
 
 const addHistory = (item) => {
+    // Prevent duplicates
+    state.calcHistory = state.calcHistory.filter(h => typeof h === 'string' ? h !== item.text : h.text !== item.text);
     state.calcHistory.unshift(item);
     if (state.calcHistory.length > CONFIG.MAX_HISTORY) state.calcHistory.pop();
     localStorage.setItem('calcHistory', JSON.stringify(state.calcHistory));
@@ -178,7 +185,23 @@ const addHistory = (item) => {
 };
 
 const renderHistory = () => {
-    el.historyChips.innerHTML = state.calcHistory.map(h => `<span class="chip">${h}</span>`).join('');
+    el.historyChips.innerHTML = state.calcHistory.map((h, i) => {
+        const label = typeof h === 'string' ? h : h.text;
+        return `<span class="chip" data-idx="${i}">${label}</span>`;
+    }).join('');
+    
+    el.historyChips.querySelectorAll('.chip').forEach(chip => {
+        chip.onclick = () => {
+            const data = state.calcHistory[chip.dataset.idx];
+            if (typeof data === 'object') {
+                el.amount.value = data.amount;
+                el.from.value = data.country;
+                el.to.value = data.period;
+                validate();
+                handleCalculate();
+            }
+        };
+    });
 };
 
 const handleReset = () => {
@@ -186,6 +209,7 @@ const handleReset = () => {
     el.from.selectedIndex = 0;
     el.to.selectedIndex = 0;
     el.h1.textContent = 'Paycheck Calculator';
+    document.title = 'Paycheck Calculator USA & Canada — Free Take-Home Pay';
     el.metaTitle.textContent = 'Paycheck Calculator USA & Canada — Free Take-Home Pay';
     el.metaDesc.content = 'Free paycheck calculator for USA and Canada. See take-home pay after federal tax, CPP, EI, Social Security.';
     el.resultArea.classList.add('hidden');
@@ -207,6 +231,26 @@ const resetFeedbackRow = () => {
     `;
     document.getElementById('fb-yes').onclick = () => el.feedbackRow.innerHTML = `<span style="display:flex;align-items:center;gap:0.5rem;">${SVGS.check} Thanks!</span>`;
     document.getElementById('fb-no').onclick = () => el.feedbackRow.innerHTML = `<span style="display:flex;align-items:center;gap:0.5rem;">${SVGS.info} Thanks for the feedback.</span>`;
+};
+
+const handleShare = async () => {
+    try {
+        await navigator.clipboard.writeText(window.location.href);
+        alert("Link copied to clipboard!");
+    } catch (err) { console.error("Could not copy link"); }
+};
+
+const handleExportCSV = () => {
+    if (!state.lastResult) return;
+    const r = state.lastResult;
+    const headers = "Gross,Country,Period,TakeHome,Tax,Deductions\n";
+    const row = `${r.gross},${r.country},${r.period},${r.takeHome.toFixed(2)},${r.tax.toFixed(2)},${(r.cpp || r.ss || 0) + (r.ei || r.medicare || 0)}`;
+    const blob = new Blob([headers + row], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.setAttribute('href', url);
+    a.setAttribute('download', `paycheck-${r.country}-${Date.now()}.csv`);
+    a.click();
 };
 
 const toggleTheme = () => {
