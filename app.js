@@ -407,10 +407,10 @@ const displayResult = (annualGross, country, period, r, inputVal) => {
     // FIX: This eliminates hardcoded string values on inner HTML injection steps
     el.resultBreakdown.innerHTML = `
         <div class="muted" style="margin-bottom: 0.75rem;">All amounts in ${currency}</div>
-        <table class="breakdown-table" style="width:100%; border-collapse: collapse;">
+        <table class="breakdown-table">
             ${tableContent}
-            <tr class="total-row" style="font-weight:600; border-top:1px solid var(--border);"><td>You keep</td><td>${keepRate}%</td></tr>
-            <tr class="total-row" style="font-weight:600;"><td>Hourly Take-home</td><td>$${hourly}/hr</td></tr>
+            <tr class="total-row"><td>You keep</td><td>${keepRate}%</td></tr>
+            <tr class="total-row"><td>Hourly Take-home</td><td>$${hourly}/hr</td></tr>
         </table>
         <div class="insight-line" style="margin-top:1rem; font-weight:500; color:var(--primary);">${insight}</div>
     <p class="result-note muted" style="margin-top:1rem; font-size:0.85rem;">Estimate based on current tax rates. No deductions or credits included.</p>
