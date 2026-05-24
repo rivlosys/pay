@@ -18,15 +18,23 @@ body.dark-mode {
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
-body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; transition: background 0.3s ease; }
+body { 
+    font-family: 'Inter', sans-serif; 
+    background: var(--bg); 
+    color: var(--text); 
+    line-height: 1.6; 
+    transition: background 0.3s ease; 
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+    letter-spacing: -0.01em;
+}
 .container { max-width: 800px; margin: 0 auto; padding: 0 1.5rem; }
 
 header { background: var(--card-bg); border-bottom: 1px solid var(--border); padding: 0.75rem 0; }
 nav { display: flex; justify-content: space-between; align-items: center; }
 .logo { display: flex; align-items: center; gap: 0.5rem; font-weight: 600; }
 
-.hero { text-align: center; padding: 3.5rem 0 2.5rem; }
-h1 { font-size: 2.5rem; font-weight: 700; margin-bottom: 0.75rem; transition: opacity 0.3s; }
+.hero { text-align: center; padding: 4rem 0 3rem; }
+h1 { font-size: 3rem; font-weight: 800; margin-bottom: 0.75rem; transition: opacity 0.3s; letter-spacing: -0.025em; }
 .trust-bar { display: inline-flex; align-items: center; gap: 0.5rem; color: var(--text-muted); font-size: 0.875rem; border: 1px solid var(--border); padding: 0.25rem 0.75rem; border-radius: 99px; }
 
 .card { background: var(--card-bg); border: 1px solid var(--border); border-radius: var(--radius); padding: 2rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
@@ -50,8 +58,15 @@ button { min-height: 44px; padding: 0 1.5rem; border-radius: 8px; font-weight: 6
 button:active { transform: scale(0.98); }
 
 button.primary-btn:hover { background: var(--primary-hover); }
-button.secondary-btn:hover { background: var(--bg); border-color: var(--primary); color: var(--primary); }
-.primary-btn { background: var(--primary); color: white; border: none; flex: 2; }
+button.secondary-btn:hover { background: var(--bg); border-color: var(--primary); color: var(--primary); transform: translateY(-1px); }
+.primary-btn { 
+    background: linear-gradient(135deg, #2563eb, #1d4ed8); 
+    color: white; 
+    border: none; 
+    flex: 2; 
+    box-shadow: 0 8px 20px rgba(37, 99, 235, 0.25);
+}
+.primary-btn:hover { transform: translateY(-1px); }
 .primary-btn:disabled { opacity: 0.5; cursor: not-allowed; pointer-events: none; }
 .secondary-btn { background: transparent; border: 1px solid var(--border); color: var(--text); flex: 1; }
 
@@ -60,6 +75,7 @@ button.secondary-btn:hover { background: var(--bg); border-color: var(--primary)
 
 .result-card { text-align: center; background: var(--card-bg); border: 1px solid var(--border); border-radius: var(--radius); padding: 2.5rem; margin: 2rem 0; }
 #result-text {
+    font-variant-numeric: tabular-nums;
     font-size: 2.25rem;
     font-weight: 800;
     color: var(--primary);
@@ -121,6 +137,18 @@ button.secondary-btn:hover { background: var(--bg); border-color: var(--primary)
     text-overflow: ellipsis;
 }
 .chip:hover { border-color: var(--primary); color: var(--primary); background: rgba(37, 99, 235, 0.05); transform: translateY(-1px); }
+
+.content-seo { padding: 4rem 0; }
+.seo-text h2 { font-size: 1.75rem; margin-bottom: 1.25rem; }
+.seo-text h3 { font-size: 1.25rem; margin: 2rem 0 1rem; }
+.seo-text p { color: var(--text-muted); margin-bottom: 1rem; }
+
+.icon-btn svg, .primary-btn svg, .secondary-btn svg {
+    transition: transform 0.2s ease;
+}
+.icon-btn:hover svg, .primary-btn:hover svg {
+    transform: scale(1.1);
+}
 
 .faq-section { margin-top: 3rem; }
 .faq-section h3 { margin-bottom: 1.5rem; }

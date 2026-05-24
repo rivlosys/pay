@@ -353,8 +353,11 @@ const displayResult = (annualGross, country, period, r, inputVal) => {
 
     const largest = rows.reduce((prev, current) => (prev[1] > current[1]) ? prev : current);
     const deductionPct = totalDeductions > 0 ? Math.round((largest[1] / totalDeductions) * 100) : 0;
+    const taxRateTotal = (100 - parseFloat(keepRate)).toFixed(1);
+    const monthlyLoss = ((annualGross - r.takeHome) / 12).toLocaleString(undefined, {maximumFractionDigits: 0});
+    
     const insight = totalDeductions > 0 
-        ? `💡 ${largest[0]} makes up ${deductionPct}% of your total deductions.`
+        ? ` You're losing ${taxRateTotal}% to taxes. That's ~$${monthlyLoss}/month.`
         : `💡 You have no deductions!`;
     const currency = country === 'CAN' ? 'CAD' : 'USD';
 
