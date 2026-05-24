@@ -35,7 +35,9 @@ const el = {
 const SVGS = {
     thumbsUp: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"/></svg>`,
     thumbsDown: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3zm7-13h3a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2h-3"/></svg>`,
-    star: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`
+    star: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`,
+    check: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>`,
+    info: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>`
 };
 
 const init = () => {
@@ -145,7 +147,9 @@ const displayResult = (gross, country, period, r) => {
 
 const updateMetadata = (text, gross, country, period) => {
     el.h1.textContent = text;
-    el.metaTitle.textContent = `Paycheck Calculator — ${country}`;
+    const newTitle = `Paycheck: ${text} (${country})`;
+    el.metaTitle.textContent = newTitle;
+    document.title = newTitle;
     el.metaDesc.content = `Calculated take-home pay: ${text}. Based on 2025 ${country} tax regulations.`;
     history.replaceState(null, '', `?amount=${gross}&country=${country}&period=${period}`);
 };
@@ -185,8 +189,8 @@ const resetFeedbackRow = () => {
             <button id="fb-no" class="fb-btn">${SVGS.thumbsDown} Not really</button>
         </div>
     `;
-    document.getElementById('fb-yes').onclick = () => el.feedbackRow.innerHTML = 'Thanks! 🙌';
-    document.getElementById('fb-no').onclick = () => el.feedbackRow.innerHTML = 'Thanks for the feedback.';
+    document.getElementById('fb-yes').onclick = () => el.feedbackRow.innerHTML = `<span style="display:flex;align-items:center;gap:0.5rem;">${SVGS.check} Thanks!</span>`;
+    document.getElementById('fb-no').onclick = () => el.feedbackRow.innerHTML = `<span style="display:flex;align-items:center;gap:0.5rem;">${SVGS.info} Thanks for the feedback.</span>`;
 };
 
 const toggleTheme = () => {
