@@ -1,212 +1,188 @@
-const CONFIG = {
-    API_URL: 'https://open.er-api.com/v6/latest/',
-    MAX_HISTORY: 5
-};
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title id="meta-title">Paycheck Calculator USA & Canada — Free Take-Home Pay</title>
+    <meta name="description" id="meta-desc" content="Free paycheck calculator for USA and Canada. See take-home pay after federal tax, CPP, EI, Social Security. All states & provinces.">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://yourdomain.com/"> <!-- Update with real domain -->
+    <meta name="google-site-verification" content="zyUtsY8FCC6ZT__42zRbLUeZsHwuc7UxLgiF5rNwD3w">
 
-const state = {
-    resultsCount: 0,
-    history: [],
-    isDark: false,
-    lastResult: null
-};
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://yourdomain.com/">
+    <meta property="og:title" content="Paycheck Calculator USA & Canada — Free Take-Home Pay">
+    <meta property="og:description" content="Free paycheck calculator for USA and Canada. See take-home pay after federal tax, CPP, EI, Social Security.">
+    <meta property="og:image" content="https://yourdomain.com/og-image.jpg">
+    <meta property="og:site_name" content="Rivlosys Tools">
+    <meta property="og:locale" content="en_US">
 
-// UI Elements
-const el = {
-    amount: document.getElementById('amount'),
-    from: document.getElementById('from-currency'),
-    to: document.getElementById('to-currency'),
-    convertBtn: document.getElementById('convert-btn'),
-    resetBtn: document.getElementById('reset-btn'),
-    resultArea: document.getElementById('result-area'),
-    skeleton: document.getElementById('result-skeleton'),
-    resultText: document.getElementById('result-text'),
-    resultCount: document.getElementById('result-count'),
-    feedbackRow: document.getElementById('feedback-row'),
-    donateContainer: document.getElementById('donate-container'),
-    themeToggle: document.getElementById('theme-toggle'),
-    pasteBtn: document.getElementById('paste-btn'),
-    h1: document.getElementById('main-h1'),
-    metaTitle: document.getElementById('meta-title'),
-    metaDesc: document.getElementById('meta-desc'),
-    qrContainer: document.getElementById('qr-container'),
-    historyChips: document.getElementById('history-chips')
-};
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://yourdomain.com/">
+    <meta property="twitter:title" content="Paycheck Calculator USA & Canada — Free Take-Home Pay">
+    <meta property="twitter:description" content="Free paycheck calculator for USA and Canada. See take-home pay after federal tax, CPP, EI, Social Security.">
+    <meta property="twitter:image" content="https://yourdomain.com/og-image.jpg">
 
-// SVG Assets
-const SVGS = {
-    thumbsUp: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"/></svg>`,
-    thumbsDown: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3zm7-13h3a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2h-3"/></svg>`,
-    star: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`
-};
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
 
-const init = () => {
-    attachListeners();
-    resetFeedbackRow();
-    checkUrlParams();
-};
-
-const attachListeners = () => {
-    [el.amount, el.from, el.to].forEach(input => {
-        input.addEventListener('input', validate);
-    });
-
-    el.convertBtn.onclick = handleConvert;
-    el.resetBtn.onclick = handleReset;
-    el.themeToggle.onclick = toggleTheme;
-    el.pasteBtn.onclick = handlePaste;
-    
-    document.getElementById('print-btn').onclick = () => window.print();
-    document.getElementById('copy-btn').onclick = handleCopy;
-    document.getElementById('csv-btn').onclick = handleCSV;
-    document.getElementById('qr-btn').onclick = toggleQR;
-};
-
-const validate = () => {
-    const isValid = el.amount.value > 0 && el.from.value && el.to.value;
-    el.convertBtn.disabled = !isValid;
-};
-
-const handlePaste = async () => {
-    const text = await navigator.clipboard.readText();
-    const num = parseFloat(text);
-    if (!isNaN(num)) {
-        el.amount.value = num;
-        validate();
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "Paycheck Calculator USA & Canada",
+      "url": "https://yourdomain.com/",
+      "applicationCategory": "FinanceApplication",
+      "operatingSystem": "All",
+      "description": "Calculate take-home pay after taxes for USA and Canada.",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD"
+      }
     }
-};
-
-const handleConvert = async () => {
-    const amt = el.amount.value;
-    const from = el.from.value;
-    const to = el.to.value;
-
-    el.skeleton.classList.remove('hidden');
-    el.resultArea.classList.add('hidden');
-
-    try {
-        const res = await fetch(`${CONFIG.API_URL}${from}`);
-        const data = await res.json();
-        
-        if (data.result === 'success') {
-            const rate = data.rates[to];
-            const result = (amt * rate).toFixed(2);
-            displayResult(amt, from, to, result);
-        }
-    } catch (e) {
-        console.error("API Error", e);
-    } finally {
-        el.skeleton.classList.add('hidden');
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [{
+        "@type": "ListItem",
+        "position": 1,
+        "name": "Home",
+        "item": "https://yourdomain.com/"
+      }]
     }
-};
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "url": "https://yourdomain.com/",
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": "https://yourdomain.com/?q={search_term_string}",
+        "query-input": "required name=search_term_string"
+      }
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [{
+        "@type": "Question",
+        "name": "Is this paycheck calculator free?",
+        "acceptedAnswer": { "@type": "Answer", "text": "Yes, it is 100% free and does not store your data." }
+      }]
+    }
+    </script>
+    <script src="app.js" defer></script>
+</head>
+<body class="light-mode">
+    <header>
+        <nav class="container">
+            <div class="logo">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                <span>Rivlosys Tools</span>
+            </div>
+            <button id="theme-toggle" aria-label="Toggle dark mode" class="icon-btn">
+                <svg id="sun-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/></svg>
+                <svg id="moon-icon" class="hidden" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+            </button>
+        </nav>
+    </header>
 
-const displayResult = (amt, from, to, res) => {
-    const text = `${amt} ${from} = ${res} ${to}`;
-    el.resultText.textContent = text;
-    state.lastResult = { amt, from, to, res, date: new Date().toISOString() };
-    
-    state.resultsCount++;
-    el.resultCount.textContent = `${state.resultsCount} results so far`;
-    
-    // SEO & History
-    updateMetadata(text, amt, from, to);
-    addHistory(text);
-    
-    // UI Logic
-    el.resultArea.classList.remove('hidden');
-    el.donateContainer.classList.remove('hidden');
-    el.qrContainer.classList.add('hidden');
-};
+    <main class="container">
+        <section class="hero">
+            <h1 id="main-h1">Paycheck Calculator</h1>
+            <div class="trust-bar">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                <span>No data stored · Free forever · 2025 Tax Brackets</span>
+            </div>
+        </section>
 
-const updateMetadata = (text, amt, from, to) => {
-    el.h1.textContent = text;
-    el.metaTitle.textContent = `${text} - Converter`;
-    el.metaDesc.content = `Real-time conversion: ${text}. Live exchange rates provided by Rivlosys.`;
-    history.replaceState(null, '', `?amount=${amt}&from=${from}&to=${to}`);
-};
+        <div class="card">
+            <div class="input-grid">
+                <div class="input-group">
+                    <label for="amount">Gross Pay</label>
+                    <div class="input-wrapper">
+                        <input type="number" id="amount" placeholder="0.00" min="0" step="any">
+                        <button id="paste-btn" type="button" aria-label="Paste">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg>
+                        </button>
+                    </div>
+                </div>
+                <div class="input-group">
+                    <label for="from-currency">Country</label>
+                    <select id="from-currency">
+                        <option value="USA">United States</option>
+                        <option value="CAN">Canada</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label for="to-currency">Pay Period</label>
+                    <select id="to-currency">
+                        <option value="annual">Annual</option>
+                        <option value="monthly">Monthly</option>
+                        <option value="biweekly">Bi-Weekly</option>
+                        <option value="weekly">Weekly</option>
+                    </select>
+                </div>
+            </div>
 
-const addHistory = (item) => {
-    state.history.unshift(item);
-    if (state.history.length > CONFIG.MAX_HISTORY) state.history.pop();
-    el.historyChips.innerHTML = state.history.map(h => `<span class="chip">${h}</span>`).join('');
-};
-
-const handleReset = () => {
-    // Clear Inputs
-    el.amount.value = '';
-    el.from.selectedIndex = 0;
-    el.to.selectedIndex = 0;
-    validate();
-
-    // Reset Branding/SEO
-    el.h1.textContent = 'Currency Converter';
-    el.metaTitle.textContent = 'Live Currency Converter - Real-Time Exchange Rates';
-    el.metaDesc.content = 'Convert 160+ currencies with real-time exchange rates. Free, fast, and mobile-friendly currency conversion tool.';
-    history.replaceState(null, '', '/');
-
-    // Reset Result Areas
-    el.resultArea.classList.add('hidden');
-    el.qrContainer.innerHTML = '';
-    el.qrContainer.classList.add('hidden');
-    resetFeedbackRow();
-};
-
-const resetFeedbackRow = () => {
-    el.feedbackRow.innerHTML = `
-        <span>${SVGS.star} Did this help?</span>
-        <div class="feedback-btns">
-            <button id="fb-yes" class="fb-btn">${SVGS.thumbsUp} Yes</button>
-            <button id="fb-no" class="fb-btn">${SVGS.thumbsDown} Not really</button>
+            <div class="actions">
+                <button id="convert-btn" class="primary-btn" disabled>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                    Calculate
+                </button>
+                <button id="reset-btn" class="secondary-btn">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/></svg>
+                    Reset
+                </button>
+            </div>
         </div>
-    `;
-    document.getElementById('fb-yes').onclick = () => el.feedbackRow.innerHTML = 'Thanks! 🙌';
-    document.getElementById('fb-no').onclick = () => el.feedbackRow.innerHTML = 'Thanks for the feedback.';
-};
 
-const handleCopy = () => {
-    navigator.clipboard.writeText(el.resultText.textContent);
-};
+        <div id="loading-skeleton" class="skeleton hidden"></div>
+        <section id="result-area" class="hidden">
+            <div class="result-card">
+                <h2 id="result-text">Take-Home: $0.00</h2>
+                <p id="result-breakdown" class="muted" style="margin-top:0.75rem;font-size:0.85rem;"></p>
+                <div class="badge" id="result-count">0 calculations so far</div>
+                <div class="export-tools">
+                    <button id="print-btn" class="icon-btn" aria-label="Print"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg></button>
+                    <button id="copy-btn" class="icon-btn" aria-label="Copy"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button>
+                </div>
+                <div id="feedback-row" class="feedback-row hidden"></div>
+                <div id="donate-container" class="hidden">
+                    <a href="https://www.buymeacoffee.com/rivlosys" target="_blank" class="bmc-btn">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg>
+                        Buy Me a Coffee
+                    </a>
+                    <p class="tagline">Enjoyed it? Keep it free.</p>
+                </div>
+            </div>
+        </section>
 
-const handleCSV = () => {
-    if (!state.lastResult) return;
-    const csv = `Date,From,Amount,To,Result\n${state.lastResult.date},${state.lastResult.from},${state.lastResult.amt},${state.lastResult.to},${state.lastResult.res}`;
-    const blob = new Blob([csv], { type: 'text/csv' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `conversion-${Date.now()}.csv`;
-    a.click();
-};
+        <section class="history-section">
+            <h3 class="section-title">Recent Calculations</h3>
+            <div id="history-chips" class="chips-container"></div>
+        </section>
+    </main>
 
-const toggleQR = () => {
-    if (!el.qrContainer.classList.contains('hidden')) {
-        el.qrContainer.classList.add('hidden');
-        return;
-    }
-    el.qrContainer.innerHTML = '';
-    new QRCode(el.qrContainer, {
-        text: window.location.href,
-        width: 128,
-        height: 128
-    });
-    el.qrContainer.classList.remove('hidden');
-};
-
-const toggleTheme = () => {
-    state.isDark = !state.isDark;
-    document.body.classList.toggle('dark-mode', state.isDark);
-    document.getElementById('sun-icon').classList.toggle('hidden', state.isDark);
-    document.getElementById('moon-icon').classList.toggle('hidden', !state.isDark);
-};
-
-const checkUrlParams = () => {
-    const params = new URLSearchParams(window.location.search);
-    if (params.has('amount')) {
-        el.amount.value = params.get('amount');
-        el.from.value = params.get('from');
-        el.to.value = params.get('to');
-        validate();
-        handleConvert();
-    }
-};
-
-init();
+    <footer>
+        <div class="container footer-grid">
+            <p>Made by <strong>Rivlosys</strong></p>
+            <div class="footer-links">
+                <a href="contact.html">Contact Us</a>
+                <a href="disclaimer.html">Disclaimer</a>
+                <a href="privacy.html">Privacy Policy</a>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>
