@@ -1,0 +1,22 @@
+{
+  "name": "Salary After Tax Calculator",
+  "short_name": "PaycheckCalc",
+  "description": "Calculate take-home pay for USA and Canada instantly.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#2563eb",
+  "icons": [
+    {
+      "src": "favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "favicon.svg",
+      "sizes": "192x192",
+      "type": "image/svg+xml"
+    }
+  ]
+}

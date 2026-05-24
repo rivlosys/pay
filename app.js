@@ -8,6 +8,8 @@ const CONFIG = {
     DATA_URL: 'tax-data.json'
 };
 
+let deferredPrompt;
+
 const SVGS = {
     check: '✓',
     copy: '📋',
@@ -50,7 +52,11 @@ const el = {
     insightHeadline: document.getElementById('insight-headline'),
     historyChips: document.getElementById('history-chips'),
     reverseModeBtn: document.getElementById('reverse-mode-btn'),
-    resultViz: document.getElementById('result-viz')
+    resultViz: document.getElementById('result-viz'),
+    step1Tab: document.getElementById('step-1-tab'),
+    step2Tab: document.getElementById('step-2-tab'),
+    step1Content: document.getElementById('step-1-content'),
+    step2Content: document.getElementById('step-2-content')
 };
 
 let calcTimeout;
@@ -61,9 +67,14 @@ const init = async () => {
         document.body.classList.add('is-iframe');
     }
 
+    // Register Service Worker for PWA
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('sw.js').catch(() => {});
+    }
+
     // Set smart defaults if no state loaded via URL
     const params = new URLSearchParams(window.location.search);
-    if (!params.get('amount') && !el.amount.value) {
+    if (!params.get('salary') && !params.get('amount') && !el.amount.value) {
         el.from.value = 'CAN';
     }
 
@@ -76,7 +87,6 @@ const init = async () => {
 
     resetFeedbackRow();
     updateYearUI();
-    document.getElementById('footer-year').textContent = new Date().getFullYear();
 
     // Migrate legacy string history to objects
     state.calcHistory = state.calcHistory.map(h => typeof h === 'string' ? { text: h, amount: 0, country: 'USA', period: 'annual' } : h);
@@ -90,6 +100,7 @@ const init = async () => {
     }
     // Load state from URL if present
     parseUrlParams();
+    document.getElementById('footer-year').textContent = new Date().getFullYear();
 };
 
 const updateYearUI = () => {
@@ -125,7 +136,7 @@ const parseUrlParams = () => {
     const mode = params.get('mode') || 'gross-to-net';
     setMode(mode);
 
-    const amt = params.get('amount');
+    const amt = params.get('salary') || params.get('amount');
     const country = params.get('country');
     const region = params.get('region');
     const period = params.get('period');
@@ -179,6 +190,9 @@ const attachListeners = () => {
         });
     }
 
+    if (el.step1Tab) el.step1Tab.onclick = () => showStep(1);
+    if (el.step2Tab) el.step2Tab.onclick = () => showStep(2);
+
     const modeGross = document.getElementById('mode-gross');
     const modeNet = document.getElementById('mode-net');
     if (modeGross) modeGross.onclick = () => setMode('gross-to-net');
@@ -208,7 +222,48 @@ const attachListeners = () => {
             btn.style.color = '';
         }, 1500);
     };
+    if (document.getElementById('qr-btn')) {
+        document.getElementById('qr-btn').onclick = () => {
+            const container = document.getElementById('qr-container');
+            const img = document.getElementById('qr-code-img');
+            const isHidden = container.classList.toggle('hidden');
+            if (!isHidden) {
+                const url = encodeURIComponent(window.location.href);
+                img.src = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${url}`;
+            }
+        };
+    }
+
+    window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        deferredPrompt = e;
+        const installBtn = document.getElementById('pwa-install');
+        if (installBtn) installBtn.classList.remove('hidden');
+    });
+
+    if (document.getElementById('pwa-install')) {
+        document.getElementById('pwa-install').onclick = (e) => {
+            e.preventDefault();
+            if (deferredPrompt) deferredPrompt.prompt();
+        };
+    }
+
     if (el.reverseModeBtn) el.reverseModeBtn.onclick = handleReverseModeToggle;
+};
+
+const showStep = (step) => {
+    if (step === 2 && el.step2Tab.disabled) return;
+    
+    el.step1Tab.classList.toggle('active', step === 1);
+    el.step2Tab.classList.toggle('active', step === 2);
+    
+    if (step === 1) {
+        el.step1Content.classList.remove('hidden');
+        el.step2Content.classList.add('hidden');
+    } else {
+        el.step1Content.classList.add('hidden');
+        el.step2Content.classList.remove('hidden');
+    }
 };
 
 const updateRegions = () => {
@@ -334,9 +389,11 @@ const handleCalculate = async () => {
     state.lastResult = { gross: annualGross, country, period, region: regionId, regionName, ...result };
 
     // Show loading skeleton
+    showStep(2);
     el.resultArea.classList.add('hidden');
     el.skeleton.classList.remove('hidden');
     el.convertBtn.disabled = true;
+    el.step2Tab.disabled = false;
 
     // Simulate brief processing delay
     await new Promise(r => setTimeout(r, 150));
@@ -450,7 +507,7 @@ const updateMetadata = (text, gross, country, period, mode, region) => {
     if (el.metaDesc) {
         el.metaDesc.content = `Calculated take-home pay: ${text}. Based on ${year} ${country} tax regulations.`;
     }
-    history.replaceState(null, '', window.location.pathname + `?amount=${gross}&country=${country}&period=${period}&mode=${mode}&region=${region}`);
+    history.replaceState(null, '', window.location.pathname + `?salary=${gross}&country=${country}&period=${period}&mode=${mode}&region=${region}`);
 };
 
 const addHistory = (item) => {
@@ -477,7 +534,7 @@ const renderHistory = () => {
             el.from.value = data.country;
             updateRegions();
             el.region.value = data.region || '0';
-            el.to.value = data.period;
+            el.payPeriod.value = data.period;
             validate();
             handleCalculate();
         };
@@ -531,6 +588,10 @@ const handleReset = () => {
     if (el.resultBreakdown) el.resultBreakdown.innerHTML = ''; 
     if (el.resultViz) el.resultViz.innerHTML = '';
     
+    if (el.step2Tab) {
+        el.step2Tab.disabled = true;
+        showStep(1);
+    }
     if (el.donateContainer) el.donateContainer.classList.add('hidden');
     history.replaceState(null, '', '/');
     resetFeedbackRow();
