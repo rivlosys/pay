@@ -60,24 +60,17 @@ const init = async () => {
     await loadTaxData();
     attachListeners();
 
-    if (!params.get('amount') && !el.amount.value) {
+    if (el.from && el.region && !params.get('amount') && (!el.amount || !el.amount.value)) {
         el.region.value = 'ON';
     }
 
     resetFeedbackRow();
+    updateYearUI();
 
     // Migrate legacy string history to objects
     state.calcHistory = state.calcHistory.map(h => typeof h === 'string' ? { text: h, amount: 0, country: 'USA', period: 'annual' } : h);
     // Hydrate history chips from local storage
     renderHistory();
-
-    // Set dynamic text based on JSON data
-    el.h1.textContent = `Free Paycheck Calculator — USA & Canada (${TAX_DATA.year})`;
-    const trustBarSpan = document.querySelector('.trust-bar span');
-    if (trustBarSpan) {
-        trustBarSpan.textContent = `No data stored · Free forever · ${TAX_DATA.year} Tax Brackets`;
-    }
-
     // Apply dark mode if persisted
     if (state.isDark) {
         document.body.classList.add('dark-mode');
@@ -88,17 +81,23 @@ const init = async () => {
     parseUrlParams();
 };
 
+const updateYearUI = () => {
+    if (!TAX_DATA) return;
+    document.querySelectorAll('.dynamic-year').forEach(e => e.textContent = TAX_DATA.year);
+    if (el.metaDesc) el.metaDesc.content = el.metaDesc.content.replace(/202[0-9]/g, TAX_DATA.year);
+    if (el.h1 && el.h1.textContent.includes('2025')) el.h1.textContent = el.h1.textContent.replace('2025', TAX_DATA.year);
+};
+
 const loadTaxData = async () => {
     try {
         const cached = sessionStorage.getItem('taxData');
-        if (cached) { 
-            TAX_DATA = JSON.parse(cached); 
-            updateRegions(); 
-            return; 
+        if (cached) {
+            TAX_DATA = JSON.parse(cached);
+        } else {
+            const res = await fetch(CONFIG.DATA_URL);
+            TAX_DATA = await res.json();
+            sessionStorage.setItem('taxData', JSON.stringify(TAX_DATA));
         }
-        const res = await fetch(CONFIG.DATA_URL);
-        TAX_DATA = await res.json();
-        sessionStorage.setItem('taxData', JSON.stringify(TAX_DATA));
         updateRegions();
     } catch (err) { console.error("Critical: Failed to load tax data", err); }
 };
@@ -112,11 +111,11 @@ const parseUrlParams = () => {
     const country = params.get('country');
     const region = params.get('region');
     const period = params.get('period');
-    if (country) {
+    if (country && el.from) {
         el.from.value = country;
         updateRegions();
     }
-    if (amt && !isNaN(parseFloat(amt))) {
+    if (el.amount && amt && !isNaN(parseFloat(amt))) {
         el.amount.value = amt;
         if (region) el.region.value = region;
         if (period) el.to.value = period;
@@ -127,6 +126,7 @@ const parseUrlParams = () => {
 
 const attachListeners = () => {
     [el.amount, el.from, el.to, el.region].forEach(input => {
+        if (!input) return;
         input.addEventListener('input', () => {
             validate();
             clearTimeout(calcTimeout);
@@ -137,33 +137,39 @@ const attachListeners = () => {
     });
 
     // Sticky CTA logic
-    window.addEventListener('scroll', () => {
-        const rect = el.convertBtn.getBoundingClientRect();
-        const sticky = document.getElementById('sticky-cta');
-        if (rect.bottom < 0) sticky.classList.add('show');
-        else sticky.classList.remove('show');
-    });
-    document.getElementById('sticky-cta').onclick = () => {
-        el.amount.focus();
-        window.scrollTo({ top: el.amount.offsetTop - 100, behavior: 'smooth' });
-    };
+    const sticky = document.getElementById('sticky-cta');
+    if (sticky && el.convertBtn) {
+        window.addEventListener('scroll', () => {
+            const rect = el.convertBtn.getBoundingClientRect();
+            if (rect.bottom < 0) sticky.classList.add('show');
+            else sticky.classList.remove('show');
+        });
+        sticky.onclick = () => {
+            if (el.amount) el.amount.focus();
+            window.scrollTo({ top: (el.amount?.offsetTop || 0) - 100, behavior: 'smooth' });
+        };
+    }
 
-    el.from.addEventListener('change', updateRegions);
-    el.amount.addEventListener('keydown', e => { 
-        if (e.key === 'Enter') {
-            e.preventDefault();
-            handleCalculate(); 
-        }
-    });
-    document.getElementById('mode-gross').onclick = () => setMode('gross-to-net');
-    document.getElementById('mode-net').onclick = () => setMode('net-to-gross');
-    el.convertBtn.onclick = (e) => {
-        e.preventDefault();
-        handleCalculate();
-    };
+    if (el.from) el.from.addEventListener('change', updateRegions);
+    if (el.amount) {
+        el.amount.addEventListener('keydown', e => { 
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                handleCalculate(); 
+            }
+        });
+    }
+
+    const modeGross = document.getElementById('mode-gross');
+    const modeNet = document.getElementById('mode-net');
+    if (modeGross) modeGross.onclick = () => setMode('gross-to-net');
+    if (modeNet) modeNet.onclick = () => setMode('net-to-gross');
+    
+    if (el.convertBtn) el.convertBtn.onclick = (e) => { e.preventDefault(); handleCalculate(); };
     el.resetBtn.onclick = handleReset;
-    el.themeToggle.onclick = toggleTheme;
-    el.pasteBtn.onclick = handlePaste;
+    if (el.themeToggle) el.themeToggle.onclick = toggleTheme;
+    if (el.pasteBtn) el.pasteBtn.onclick = handlePaste;
+    
     document.getElementById('share-btn').onclick = handleShare;
     document.getElementById('csv-btn').onclick = handleExportCSV;
     document.getElementById('clear-history-btn').onclick = () => {
@@ -183,7 +189,7 @@ const attachListeners = () => {
             btn.style.color = '';
         }, 1500);
     };
-    el.reverseModeBtn.onclick = handleReverseModeToggle;
+    if (el.reverseModeBtn) el.reverseModeBtn.onclick = handleReverseModeToggle;
 };
 
 const updateRegions = () => {
@@ -195,6 +201,7 @@ const updateRegions = () => {
 };
 
 const setMode = (mode) => {
+    if (!el.amount) return;
     state.mode = mode;
     document.getElementById('mode-gross').classList.toggle('active', mode === 'gross-to-net');
     document.getElementById('mode-net').classList.toggle('active', mode === 'net-to-gross');
@@ -204,6 +211,7 @@ const setMode = (mode) => {
 };
 
 const validate = () => {
+    if (!el.amount) return;
     const val = parseFloat(el.amount.value);
     const isValid = val > 0 && val <= 10000000;
     el.convertBtn.disabled = !isValid;
@@ -211,6 +219,7 @@ const validate = () => {
 };
 
 const handlePaste = async () => {
+    if (!el.amount) return;
     try {
         const text = await navigator.clipboard.readText();
         const num = parseFloat(text.replace(/[^0-9.]/g, ''));
@@ -381,7 +390,8 @@ const displayResult = (annualGross, country, period, r, inputVal) => {
         <tr class="total-row"><td>You keep</td><td>${keepRate}%</td></tr>
         <tr class="total-row"><td>Hourly Take-home</td><td>$${hourly}/hr</td></tr>
     </table>
-    <div class="insight-line">${insight}</div>`;
+    <div class="insight-line">${insight}</div>
+    <p class="result-note muted">Estimate based on ${TAX_DATA.year} tax rates. No deductions or credits included.</p>`;
 
     state.resultsCount++;
     localStorage.setItem('resultsCount', state.resultsCount);
@@ -392,7 +402,7 @@ const displayResult = (annualGross, country, period, r, inputVal) => {
     el.donateContainer.classList.remove('hidden');
     el.feedbackRow.classList.remove('hidden');
 
-    const metaText = `Take-home: $${perYear}/yr`;
+    const metaText = `Take-home pay: $${perYear}`;
     updateMetadata(metaText, inputVal, country, period, state.mode, r.region);
     
     generateCompareLinks(annualGross);
@@ -401,8 +411,11 @@ const displayResult = (annualGross, country, period, r, inputVal) => {
 };
 
 const updateMetadata = (text, gross, country, period, mode, region) => {
-    // We don't change H1 to the result anymore to keep "Smart insight" feel, but we update title
-    document.title = `Paycheck: ${text} (${country})`;
+    const year = TAX_DATA ? TAX_DATA.year : TAX_YEAR;
+    if (el.h1 && !el.h1.textContent.includes('Salary After Tax')) {
+        el.h1.textContent = text;
+    }
+    document.title = `${text} (${country}) — ${year} Calculator`;
     el.metaDesc.content = `Calculated take-home pay: ${text}. Based on ${TAX_DATA.year} ${country} tax regulations.`;
     history.replaceState(null, '', window.location.pathname + `?amount=${gross}&country=${country}&period=${period}&mode=${mode}&region=${region}`);
 };
@@ -462,19 +475,18 @@ const generateCompareLinks = (annualGross) => {
 };
 
 const handleReset = () => {
-    el.amount.value = '';
+    if (el.amount) el.amount.value = '';
     el.from.selectedIndex = 0;
     el.to.selectedIndex = 0;
     updateRegions();
     setMode('gross-to-net');
-    el.h1.textContent = `Free Paycheck Calculator — USA & Canada (${TAX_DATA.year})`;
-    document.title = 'Paycheck Calculator USA & Canada — Free Take-Home Pay';
-    el.metaDesc.content = `Free paycheck calculator for USA and Canada. ${TAX_DATA.year} tax brackets. Free, instant, no signup.`;
+    updateYearUI();
+    document.title = `Paycheck Calculator USA & Canada — Free Take-Home Pay`;
     el.resultArea.classList.add('hidden');
     el.feedbackRow.classList.add('hidden');
-    el.resultBreakdown.textContent = '';
+    if (el.resultBreakdown) el.resultBreakdown.textContent = '';
     el.resultViz.innerHTML = '';
-    el.donateContainer.classList.add('hidden');
+    if (el.donateContainer) el.donateContainer.classList.add('hidden');
     history.replaceState(null, '', '/');
     resetFeedbackRow();
     validate();
