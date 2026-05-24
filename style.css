@@ -75,7 +75,7 @@ button.secondary-btn:hover { background: var(--bg); border-color: var(--primary)
 .skeleton { min-height: 250px; background: var(--border); border-radius: var(--radius); margin: 2rem 0; animation: pulse 1.5s infinite; }
 @keyframes pulse { 0%, 100% { opacity: 0.5; } 50% { opacity: 0.8; } }
 
-.result-card { text-align: center; background: var(--card-bg); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.5rem; margin: 2rem 0; }
+.result-card { display: flex; flex-direction: column; gap: 1.25rem; text-align: center; background: var(--card-bg); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.5rem; margin: 2rem 0; width: 100%; }
 .insight-headline {
     font-size: 1.15rem;
     font-weight: 600;
@@ -283,48 +283,6 @@ footer { margin-top: 5rem; padding: 3rem 0; border-top: 1px solid var(--border);
 .metric-label { font-size: 0.85rem; color: var(--muted); font-weight: 500; text-transform: uppercase; letter-spacing: 0.05em; }
 .metric-value { font-size: 1.6rem; font-weight: 600; color: var(--text); }
 .keep-rate-line { font-weight: 600; font-size: 1.2rem; margin: 1rem 0; text-align: center; color: var(--primary); width: 100%; }
-
-/* Result Dashboard Structural Grid Layout */
-.result-card {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 1.5rem;
-    width: 100%;
-}
-
-@media (min-width: 640px) {
-    .result-card {
-        grid-template-columns: 1fr 1fr;
-        column-gap: 2.5rem;
-        row-gap: 1.25rem;
-        align-items: start;
-    }
-    
-    /* Force universal announcement bars and summary text elements across both grid blocks */
-    .insight-headline, .results-grid, #result-text, .export-tools, .reverse-cta, #donate-container, .badge, #feedback-row {
-        grid-column: 1 / -1 !important;
-        width: 100%;
-    }
-    
-    #result-area .compare-box {
-        grid-column: 1 / -1;
-    }
-    
-    /* Pin progress bars layout container directly onto Column 1 (Left) */
-    #result-viz {
-        grid-column: 1;
-        width: 100%;
-        align-self: start;
-    }
-    
-    /* Pin numeric values breakdown grid table directly onto Column 2 (Right) */
-    #result-breakdown {
-        grid-column: 2;
-        width: 100%;
-        margin-top: 0 !important;
-        align-self: start;
-    }
-}
 
 /* Visualization Metric Rows Framework */
 .viz-container {
