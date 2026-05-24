@@ -86,14 +86,17 @@ const init = async () => {
 };
 
 const updateYearUI = () => {
-    if (!TAX_DATA) return;
-    const yearStr = TAX_DATA.year.toString();
+    const yearStr = TAX_DATA ? TAX_DATA.year.toString() : '2026';
     
-    document.querySelectorAll('.dynamic-year').forEach(e => e.textContent = yearStr);
+    // Update elements explicitly meant to change dynamically
+    document.querySelectorAll('.dynamic-year').forEach(e => {
+        e.textContent = yearStr;
+    });
     
-    // Expanded regex to catch and replace any variants of 2024 or 2025 with the true dataset year
-    if (el.metaDesc) el.metaDesc.content = el.metaDesc.content.replace(/202[0-9]/g, yearStr);
-    if (el.h1) el.h1.textContent = el.h1.textContent.replace(/202[0-9]/g, yearStr);
+    // Smoothly update the meta tags safely
+    if (el.metaDesc && el.metaDesc.content) {
+        el.metaDesc.content = el.metaDesc.content.replace(/202[0-9]/g, yearStr);
+    }
 };
 
 const loadTaxData = async () => {
@@ -420,7 +423,7 @@ const displayResult = (annualGross, country, period, r, inputVal) => {
 };
 
 const updateMetadata = (text, gross, country, period, mode, region) => {
-    const year = TAX_DATA ? TAX_DATA.year : TAX_YEAR;
+    const year = TAX_DATA ? TAX_DATA.year : '2026';
     
     if (el.h1) {
         const formattedGross = parseFloat(gross).toLocaleString(undefined, { maximumFractionDigits: 0 });
@@ -430,7 +433,7 @@ const updateMetadata = (text, gross, country, period, mode, region) => {
     
     document.title = `${text} (${country}) — ${year} Calculator`;
     if (el.metaDesc) {
-        el.metaDesc.content = `Calculated take-home pay: ${text}. Based on ${TAX_DATA.year} ${country} tax regulations.`;
+        el.metaDesc.content = `Calculated take-home pay: ${text}. Based on ${year} ${country} tax regulations.`;
     }
     history.replaceState(null, '', window.location.pathname + `?amount=${gross}&country=${country}&period=${period}&mode=${mode}&region=${region}`);
 };

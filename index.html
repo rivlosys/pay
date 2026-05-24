@@ -84,49 +84,60 @@
         .metric-value { font-size: 1.6rem; font-weight: 600; color: var(--text); }
         .keep-rate-line { font-weight: 600; font-size: 1.2rem; margin: 1rem 0; text-align: center; color: var(--primary); width: 100%; }
         
-        /* Result Dashboard Structural Grid */
+        /* Result Dashboard Structural Grid Layout */
         .result-card {
             display: grid;
             grid-template-columns: 1fr;
-            gap: 1.25rem;
+            gap: 1.5rem;
+            padding: 1.5rem;
+            width: 100%;
         }
 
         @media (min-width: 640px) {
             .result-card {
                 grid-template-columns: 1fr 1fr;
+                column-gap: 2rem;
+                row-gap: 1.25rem;
                 align-items: start;
             }
-            /* Keep global text rows stretching across the full card width */
+            
+            /* Ensure global announcement headings and full-width grids stretch across the columns safely */
             .insight-headline, .results-grid, #result-text, .export-tools, .reverse-cta, #donate-container, .badge, #feedback-row {
                 grid-column: 1 / -1 !important;
                 width: 100%;
             }
-            /* Place the visual color bars on the left side, breakdown table on the right */
+            
+            /* Lock the progress chart block onto the Left Column */
             #result-viz {
                 grid-column: 1;
                 width: 100%;
+                align-self: start;
             }
+            
+            /* Lock the calculated breakdown data table onto the Right Column */
             #result-breakdown {
                 grid-column: 2;
-                margin-top: 0;
                 width: 100%;
+                margin-top: 0 !important;
+                align-self: start;
             }
         }
 
-        /* Visualization Flex Rows */
-        .viz-row {
+        /* Visualization Row Layout Fixes */
+        .viz-container {
             display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            margin-bottom: 0.75rem;
+            flex-direction: column;
+            gap: 1rem;
             width: 100%;
+            background: #f8fafc;
+            padding: 1.25rem;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
         }
-        .viz-label { width: 50px; font-weight: 500; font-size: 0.9rem; }
-        .viz-bar-bg { flex-grow: 1; height: 12px; background: #e2e8f0; border-radius: 6px; overflow: hidden; }
-        .viz-bar-fill { height: 100%; border-radius: 6px; }
-        .viz-bar-fill.keep { background: #2563eb; }
-        .viz-bar-fill.tax { background: #ef4444; }
-        .viz-percent { width: 55px; text-align: right; font-weight: 600; font-size: 0.9rem; }
+        .dark-mode .viz-container {
+            background: #1e293b;
+            border-color: #334155;
+        }
 
         /* Footer Adaptive Grid */
         .footer-grid { display: grid; grid-template-columns: 1fr; gap: 1rem; text-align: center; }
@@ -244,7 +255,7 @@
 
     <main class="container">
         <section class="hero">
-            <h1 id="main-h1">$80,000 Salary After Tax — What Do You Actually Take Home?</h1>
+            <h1 id="main-h1">Salary After Tax Calculator — See Your Take‑Home Pay Instantly</h1>
             <p class="hero-sub">See your real paycheck after federal + state taxes in seconds.</p>
             <div class="trust-bar">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
