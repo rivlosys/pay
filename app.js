@@ -93,7 +93,7 @@ const updateYearUI = () => {
         e.textContent = yearStr;
     });
     
-    // Smoothly update the meta tags safely
+    // Smoothly update the meta description tag safely without touching H1
     if (el.metaDesc && el.metaDesc.content) {
         el.metaDesc.content = el.metaDesc.content.replace(/202[0-9]/g, yearStr);
     }
@@ -345,18 +345,22 @@ const displayResult = (annualGross, country, period, r, inputVal) => {
     
     const keepRate = ((r.takeHome / annualGross) * 100).toFixed(1);
     const getPct = (val) => `(${((val / annualGross) * 100).toFixed(1)}%)`;
-    
     const taxRate = (100 - parseFloat(keepRate)).toFixed(1);
+    const yearStr = TAX_DATA ? TAX_DATA.year.toString() : '2026';
+
+    // FIX: Structure the visualization container correctly to activate your updated CSS subgrid rules
     el.resultViz.innerHTML = `
-        <div class="viz-row">
-            <span class="viz-label">Keep</span>
-            <div class="viz-bar-bg"><div class="viz-bar-fill keep" style="width: ${keepRate}%"></div></div>
-            <span class="viz-percent">${keepRate}%</span>
-        </div>
-        <div class="viz-row">
-            <span class="viz-label">Tax</span>
-            <div class="viz-bar-bg"><div class="viz-bar-fill tax" style="width: ${taxRate}%"></div></div>
-            <span class="viz-percent">${taxRate}%</span>
+        <div class="viz-container">
+            <div class="viz-row">
+                <span class="viz-label">Keep</span>
+                <div class="viz-bar-bg"><div class="viz-bar-fill keep" style="width: ${keepRate}%"></div></div>
+                <span class="viz-percent">${keepRate}%</span>
+            </div>
+            <div class="viz-row">
+                <span class="viz-label">Tax</span>
+                <div class="viz-bar-bg"><div class="viz-bar-fill tax" style="width: ${taxRate}%"></div></div>
+                <span class="viz-percent">${taxRate}%</span>
+            </div>
         </div>
     `;
 
@@ -365,7 +369,7 @@ const displayResult = (annualGross, country, period, r, inputVal) => {
     if (el.hourlyTakehome) el.hourlyTakehome.textContent = `$${hourly}`;
 
     el.resultText.innerHTML = `You keep: ${keepRate}% of your salary`;
-    
+
     const rows = country === 'CAN' ? [
         ['Federal Tax', r.tax],
         [r.regionName, r.stateTax],
@@ -382,11 +386,7 @@ const displayResult = (annualGross, country, period, r, inputVal) => {
         `<tr><td>${label}</td><td>$${val.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ${getPct(val)}</td></tr>`
     ).join('');
 
-    // FIX: Calculate the sum of all deductions first
     const totalDeductions = rows.reduce((sum, current) => sum + current[1], 0);
-
-    const largest = rows.reduce((prev, current) => (prev[1] > current[1]) ? prev : current);
-    const deductionPct = totalDeductions > 0 ? Math.round((largest[1] / totalDeductions) * 100) : 0;
     const taxRateTotal = (100 - parseFloat(keepRate)).toFixed(1);
     const monthlyLoss = ((annualGross - r.takeHome) / 12).toLocaleString(undefined, {maximumFractionDigits: 0});
     
@@ -395,21 +395,25 @@ const displayResult = (annualGross, country, period, r, inputVal) => {
         : `💡 You have no deductions!`;
     const currency = country === 'CAN' ? 'CAD' : 'USD';
 
+    // FIX: This eliminates hardcoded string values on inner HTML injection steps
     el.resultBreakdown.innerHTML = `
-    <div class="muted" style="margin-bottom: 0.75rem;">All amounts in ${currency}</div>
-    <table class="breakdown-table">
-        ${tableContent}
-        <tr class="total-row"><td>You keep</td><td>${keepRate}%</td></tr>
-        <tr class="total-row"><td>Hourly Take-home</td><td>$${hourly}/hr</td></tr>
-    </table>
-    <div class="insight-line">${insight}</div>
-    <p class="result-note muted">Estimate based on <span class="dynamic-year">${TAX_DATA ? TAX_DATA.year : '2026'}</span> tax rates. No deductions or credits included.</p>`;
+        <div class="muted" style="margin-bottom: 0.75rem;">All amounts in ${currency}</div>
+        <table class="breakdown-table" style="width:100%; border-collapse: collapse;">
+            ${tableContent}
+            <tr class="total-row" style="font-weight:600; border-top:1px solid var(--border);"><td>You keep</td><td>${keepRate}%</td></tr>
+            <tr class="total-row" style="font-weight:600;"><td>Hourly Take-home</td><td>$${hourly}/hr</td></tr>
+        </table>
+        <div class="insight-line" style="margin-top:1rem; font-weight:500; color:var(--primary);">${insight}</div>
+        <p class="result-note muted" style="margin-top:1rem; font-size:0.85rem;">Estimate based on ${yearStr} tax rates. No deductions or credits included.</p>
+    `;
 
     state.resultsCount++;
     localStorage.setItem('resultsCount', state.resultsCount);
     el.resultCount.textContent = `${state.resultsCount} calculations so far`;
+    
     const emptyHint = document.getElementById('empty-hint');
     if (emptyHint) emptyHint.classList.add('hidden');
+    
     el.resultArea.classList.remove('hidden');
     el.donateContainer.classList.remove('hidden');
     el.feedbackRow.classList.remove('hidden');
