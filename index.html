@@ -16,7 +16,7 @@
     <link rel="icon" type="image/svg+xml" href="favicon.svg">
     <link rel="apple-touch-icon" href="favicon.svg">
     <title>Paycheck Calculator USA & Canada — Free Take-Home Pay</title>
-    <meta name="description" id="meta-desc" content="Calculate your 2025 take-home pay based on Federal tax regulations for USA and Canada. Free, instant, and secure.">
+    <meta name="description" id="meta-desc" content="Free paycheck calculator for USA and Canada. Current tax brackets. Free, instant, no signup.">
     <meta name="robots" content="index, follow">
     <link rel="canonical" href="https://pay.usecos.app/">
     <meta name="theme-color" content="#2563eb">
@@ -95,7 +95,7 @@
       {
         "@type": "Question",
         "name": "Does this support both USA and Canada tax brackets?",
-        "acceptedAnswer": { "@type": "Answer", "text": "Yes, it supports standard 2025 federal tax brackets for both the United States and Canada." }
+        "acceptedAnswer": { "@type": "Answer", "text": "Yes, it supports standard federal tax brackets for both the United States and Canada." }
       },
       {
         "@type": "Question",
@@ -151,10 +151,10 @@
 
     <main class="container">
         <section class="hero">
-            <h1 id="main-h1">Free Paycheck Calculator — USA & Canada (2025)</h1>
+            <h1 id="main-h1">Free Paycheck Calculator — USA & Canada</h1>
             <div class="trust-bar">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-                <span>No data stored · 2025 Fed Tax Data</span>
+                <span>No data stored</span>
             </div>
         </section>
 
@@ -178,6 +178,12 @@
                     <select id="from-currency">
                         <option value="USA">United States</option>
                         <option value="CAN">Canada</option>
+                    </select>
+                </div>
+                <div class="input-group" id="region-group">
+                    <label for="region">State / Province</label>
+                    <select id="region">
+                        <!-- Populated by JS -->
                     </select>
                 </div>
                 <div class="input-group">
@@ -235,7 +241,7 @@
             <h3>Frequently Asked Questions</h3>
             <details>
                 <summary>How is take-home pay calculated?</summary>
-                <p>We use the 2025 federal tax brackets for both the US and Canada to estimate your income after tax. It includes Social Security, Medicare, CPP, and EI where applicable.</p>
+                <p>We use current federal tax brackets for both the US and Canada to estimate your income after tax. It includes Social Security, Medicare, CPP, and EI where applicable.</p>
             </details>
             <details>
                 <summary>What's included in deductions?</summary>
@@ -261,7 +267,7 @@
             <div class="grid-item">
                 <h4>Resources</h4>
                 <a href="guide.html">How to Read Your Paycheck</a>
-                <a href="guide.html">2025 Tax Brackets Explained</a>
+                <a href="guide.html">Tax Brackets Explained</a>
             </div>
             <div class="grid-item">
                 <h4>Rivlosys Tools</h4>

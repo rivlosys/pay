@@ -1,8 +1,10 @@
 "use strict";
 
+let TAX_DATA = null;
+
 const CONFIG = {
     MAX_HISTORY: 5,
-    LAST_UPDATED: "2025-01-27" // Sync with 2025 IRS/CRA updates
+    DATA_URL: 'tax-data.json'
 };
 
 const state = {
@@ -17,6 +19,8 @@ const el = {
     amount: document.getElementById('amount'),
     from: document.getElementById('from-currency'),
     to: document.getElementById('to-currency'),
+    region: document.getElementById('region'),
+    regionGroup: document.getElementById('region-group'),
     convertBtn: document.getElementById('convert-btn'),
     resetBtn: document.getElementById('reset-btn'),
     skeleton: document.getElementById('loading-skeleton'),
@@ -33,21 +37,24 @@ const el = {
     historyChips: document.getElementById('history-chips')
 };
 
-const SVGS = {
-    thumbsUp: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"/></svg>`,
-    thumbsDown: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3zm7-13h3a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2h-3"/></svg>`,
-    star: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`,
-    check: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>`,
-    info: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>`
-};
-
-const init = () => {
+const init = async () => {
+    await loadTaxData();
     attachListeners();
+    updateRegions();
     resetFeedbackRow();
+
     // Migrate legacy string history to objects
     state.calcHistory = state.calcHistory.map(h => typeof h === 'string' ? { text: h, amount: 0, country: 'USA', period: 'annual' } : h);
     // Hydrate history chips from local storage
     renderHistory();
+
+    // Set dynamic text based on JSON data
+    el.h1.textContent = `Free Paycheck Calculator — USA & Canada (${TAX_DATA.year})`;
+    const trustBarSpan = document.querySelector('.trust-bar span');
+    if (trustBarSpan) {
+        trustBarSpan.textContent = `No data stored · Free forever · ${TAX_DATA.year} Tax Brackets`;
+    }
+
     // Apply dark mode if persisted
     if (state.isDark) {
         document.body.classList.add('dark-mode');
@@ -58,16 +65,31 @@ const init = () => {
     parseUrlParams();
 };
 
+const loadTaxData = async () => {
+    try {
+        const cached = sessionStorage.getItem('taxData');
+        if (cached) { TAX_DATA = JSON.parse(cached); return; }
+        const res = await fetch(CONFIG.DATA_URL);
+        TAX_DATA = await res.json();
+        sessionStorage.setItem('taxData', JSON.stringify(TAX_DATA));
+    } catch (err) { console.error("Critical: Failed to load tax data", err); }
+};
+
 const parseUrlParams = () => {
     const params = new URLSearchParams(window.location.search);
     const amt = params.get('amount');
     const country = params.get('country');
+    const region = params.get('region');
     const period = params.get('period');
     const mode = params.get('mode') || 'gross-to-net';
     setMode(mode);
+    if (country) {
+        el.from.value = country;
+        updateRegions();
+    }
     if (amt && !isNaN(parseFloat(amt))) {
         el.amount.value = amt;
-        if (country) el.from.value = country;
+        if (region) el.region.value = region;
         if (period) el.to.value = period;
         validate();
         handleCalculate();
@@ -75,7 +97,8 @@ const parseUrlParams = () => {
 };
 
 const attachListeners = () => {
-    [el.amount, el.from, el.to].forEach(input => input.addEventListener('input', validate));
+    [el.amount, el.from, el.to, el.region].forEach(input => input.addEventListener('input', validate));
+    el.from.addEventListener('change', updateRegions);
     el.amount.addEventListener('keydown', e => { if (e.key === 'Enter') handleCalculate(); });
     document.getElementById('mode-gross').onclick = () => setMode('gross-to-net');
     document.getElementById('mode-net').onclick = () => setMode('net-to-gross');
@@ -88,10 +111,22 @@ const attachListeners = () => {
     document.getElementById('print-btn').onclick = () => window.print();
     document.getElementById('copy-btn').onclick = () => {
         navigator.clipboard.writeText(el.resultText.textContent);
-        const original = document.getElementById('copy-btn').style.color;
-        document.getElementById('copy-btn').style.color = 'var(--primary)';
-        setTimeout(() => document.getElementById('copy-btn').style.color = original, 1500);
+        const btn = document.getElementById('copy-btn');
+        btn.innerHTML = SVGS.check;
+        btn.style.color = 'var(--primary)';
+        setTimeout(() => {
+            btn.innerHTML = SVGS.copy;
+            btn.style.color = '';
+        }, 1500);
     };
+};
+
+const updateRegions = () => {
+    if (!TAX_DATA) return;
+    const country = el.from.value;
+    const list = TAX_DATA[country]?.regions || [];
+    el.region.innerHTML = list.map(r => `<option value="${r.id}">${r.label}</option>`).join('');
+    validate();
 };
 
 const setMode = (mode) => {
@@ -124,12 +159,12 @@ const toAnnual = (amt, period) => ({
     biweekly: amt * 26, weekly: amt * 52
 }[period]);
 
-const calcReverse = (targetNet, country) => {
+const calcReverse = (targetNet, country, stateRate) => {
     let low = targetNet;
     let high = Math.max(targetNet * 5, 200000);
     for (let i = 0; i < 100; i++) {
         let mid = (low + high) / 2;
-        let res = country === 'CAN' ? calcCanada(mid) : calcUSA(mid);
+        let res = country === 'CAN' ? calcCanada(mid, stateRate) : calcUSA(mid, stateRate);
         if (Math.abs(res.takeHome - targetNet) < 0.01) return mid;
         if (res.takeHome < targetNet) low = mid;
         else high = mid;
@@ -137,47 +172,57 @@ const calcReverse = (targetNet, country) => {
     return low;
 };
 
-const calcCanada = (annual) => {
-    const cpp = Math.min(annual * 0.0595, 4075.75); // 2025 Max
-    const ei = Math.min(annual * 0.0166, 1049.12);
-    let fed = 0;
-    if (annual > 253414) fed = (annual - 253414) * 0.33 + 58686.73;
-    else if (annual > 177882) fed = (annual - 177882) * 0.29 + 36782.45;
-    else if (annual > 114750) fed = (annual - 114750) * 0.26 + 20368.13;
-    else if (annual > 57375) fed = (annual - 57375) * 0.205 + 8606.25;
-    else fed = annual * 0.15;
-    return { takeHome: annual - (cpp + ei + fed), cpp, ei, tax: fed };
+const calcBrackets = (annual, brackets) => {
+    if (!brackets) return 0;
+    const bracket = brackets.slice().reverse().find(b => annual > b.min);
+    if (!bracket) return annual * (brackets[0].rate || 0);
+    return (annual - bracket.min) * bracket.rate + bracket.base;
 };
 
-const calcUSA = (annual) => {
-    const ss = Math.min(annual * 0.062, 10918.20); // 2025 Limit $176,100
-    const medicare = annual * 0.0145;
-    let fed = 0;
-    if (annual > 626350) fed = (annual - 626350) * 0.37 + 188770;
-    else if (annual > 250525) fed = (annual - 250525) * 0.35 + 57231;
-    else if (annual > 197300) fed = (annual - 197300) * 0.32 + 40199;
-    else if (annual > 103350) fed = (annual - 103350) * 0.24 + 17651;
-    else if (annual > 48475) fed = (annual - 48475) * 0.22 + 5578.50;
-    else if (annual > 11925) fed = (annual - 11925) * 0.12 + 1192.50;
-    else fed = annual * 0.10;
-    return { takeHome: annual - (ss + medicare + fed), ss, medicare, tax: fed };
+const getRegionTax = (annual, country, regionId) => {
+    const region = TAX_DATA[country]?.regions.find(r => r.id === regionId);
+    if (!region || region.type === 'none') return 0;
+    if (region.type === 'flat') return annual * region.rate;
+    if (region.type === 'progressive') return calcBrackets(annual, region.brackets);
+    return 0;
+};
+
+const calcCanada = (annual, regionId) => {
+    const d = TAX_DATA.CAN.federal;
+    const cpp = Math.min(annual * d.cpp_rate, d.cpp_cap);
+    const ei = Math.min(annual * d.ei_rate, d.ei_cap);
+    const fed = calcBrackets(annual, d.brackets);
+    const stateTax = getRegionTax(annual, 'CAN', regionId);
+    return { takeHome: annual - (cpp + ei + fed + stateTax), cpp, ei, tax: fed, stateTax };
+};
+
+const calcUSA = (annual, regionId) => {
+    const d = TAX_DATA.USA.federal;
+    const ss = Math.min(annual * d.ss_rate, d.ss_cap);
+    const medicare = annual * d.medicare_rate;
+    const fed = calcBrackets(annual, d.brackets);
+    const stateTax = getRegionTax(annual, 'USA', regionId);
+    return { takeHome: annual - (ss + medicare + fed + stateTax), ss, medicare, tax: fed, stateTax };
 };
 
 const handleCalculate = async () => {
+    if (!TAX_DATA) return;
     const inputVal = parseFloat(el.amount.value);
     if (inputVal <= 0 || isNaN(inputVal)) return;
     const country = el.from.value;
+    const regionId = el.region.value;
+    const regionName = el.region.options[el.region.selectedIndex].text.split(' (')[0];
     const period = el.to.value;
     const annualInput = toAnnual(inputVal, period);
     
     let annualGross, result;
     if (state.mode === 'net-to-gross') {
-        annualGross = calcReverse(annualInput, country);
+        annualGross = calcReverse(annualInput, country, regionId);
     } else {
         annualGross = annualInput;
     }
-    result = country === 'CAN' ? calcCanada(annualGross) : calcUSA(annualGross);
-    state.lastResult = { gross: annualGross, country, period, ...result };
+    result = country === 'CAN' ? calcCanada(annualGross, regionId) : calcUSA(annualGross, regionId);
+    state.lastResult = { gross: annualGross, country, period, region: el.region.value, regionName, ...result };
 
     // Show loading skeleton
     el.resultArea.classList.add('hidden');
@@ -196,12 +241,14 @@ const displayResult = (annualGross, country, period, r, inputVal) => {
     const perMonth = (r.takeHome / 12).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     const perYear = r.takeHome.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     const text = `Take-Home: $${perMonth}/mo ($${perYear}/yr)`;
-    const effectiveRate = ((r.tax / annualGross) * 100).toFixed(1);
+    
+    const totalDeductions = r.tax + (r.stateTax ?? 0) + (r.ss ?? 0) + (r.medicare ?? 0) + (r.cpp ?? 0) + (r.ei ?? 0);
+    const effectiveRate = ((totalDeductions / annualGross) * 100).toFixed(1);
     
     el.resultText.textContent = text;
     el.resultBreakdown.textContent = country === 'CAN'
-        ? `Fed Tax: $${r.tax.toFixed(2)} | CPP: $${r.cpp.toFixed(2)} | EI: $${r.ei.toFixed(2)} | Effective Rate: ${effectiveRate}%`
-        : `Fed Tax: $${r.tax.toFixed(2)} | Soc. Security: $${r.ss.toFixed(2)} | Medicare: $${r.medicare.toFixed(2)} | Effective Rate: ${effectiveRate}%`;
+        ? `Fed: $${r.tax.toFixed(0)} | ${r.regionName}: $${r.stateTax.toFixed(0)} | CPP/EI: $${(r.cpp+r.ei).toFixed(0)} | Total Rate: ${effectiveRate}%`
+        : `Fed: $${r.tax.toFixed(0)} | ${r.regionName}: $${r.stateTax.toFixed(0)} | FICA: $${(r.ss+r.medicare).toFixed(0)} | Total Rate: ${effectiveRate}%`;
 
     state.resultsCount++;
     localStorage.setItem('resultsCount', state.resultsCount);
@@ -210,15 +257,15 @@ const displayResult = (annualGross, country, period, r, inputVal) => {
     el.donateContainer.classList.remove('hidden');
     el.feedbackRow.classList.remove('hidden');
 
-    updateMetadata(text, inputVal, country, period, state.mode);
-    addHistory({ text, amount: inputVal, country, period });
+    updateMetadata(text, inputVal, country, period, state.mode, r.region);
+    addHistory({ text, amount: inputVal, country, period, region: r.region });
 };
 
-const updateMetadata = (text, gross, country, period, mode) => {
+const updateMetadata = (text, gross, country, period, mode, region) => {
     el.h1.textContent = text;
     document.title = `Paycheck: ${text} (${country})`;
-    el.metaDesc.content = `Calculated take-home pay: ${text}. Based on 2025 ${country} tax regulations.`;
-    history.replaceState(null, '', `?amount=${gross}&country=${country}&period=${period}&mode=${mode}`);
+    el.metaDesc.content = `Calculated take-home pay: ${text}. Based on ${TAX_DATA.year} ${country} tax regulations.`;
+    history.replaceState(null, '', `?amount=${gross}&country=${country}&period=${period}&mode=${mode}&region=${region}`);
 };
 
 const addHistory = (item) => {
@@ -243,6 +290,8 @@ const renderHistory = () => {
             const data = state.calcHistory[chip.dataset.idx];
             el.amount.value = data.amount;
             el.from.value = data.country;
+            updateRegions();
+            el.region.value = data.region || '0';
             el.to.value = data.period;
             validate();
             handleCalculate();
@@ -254,10 +303,11 @@ const handleReset = () => {
     el.amount.value = '';
     el.from.selectedIndex = 0;
     el.to.selectedIndex = 0;
+    updateRegions();
     setMode('gross-to-net');
-    el.h1.textContent = 'Free Paycheck Calculator — USA & Canada (2025)';
+    el.h1.textContent = `Free Paycheck Calculator — USA & Canada (${TAX_DATA.year})`;
     document.title = 'Paycheck Calculator USA & Canada — Free Take-Home Pay';
-    el.metaDesc.content = 'Free paycheck calculator for USA and Canada. See take-home pay after federal tax, CPP, EI, Social Security.';
+    el.metaDesc.content = `Free paycheck calculator for USA and Canada. ${TAX_DATA.year} tax brackets. Free, instant, no signup.`;
     el.resultArea.classList.add('hidden');
     el.feedbackRow.classList.add('hidden');
     el.resultBreakdown.textContent = '';
