@@ -234,7 +234,7 @@ const handleCalculate = async () => {
 
     el.skeleton.classList.add('hidden');
     validate();
-    displayResult(annualGross, country, period, result, inputVal);
+    displayResult(annualGross, country, period, state.lastResult, inputVal);
 };
 
 const displayResult = (annualGross, country, period, r, inputVal) => {
@@ -247,8 +247,8 @@ const displayResult = (annualGross, country, period, r, inputVal) => {
     
     el.resultText.textContent = text;
     el.resultBreakdown.textContent = country === 'CAN'
-        ? `Fed: $${r.tax.toFixed(0)} | ${r.regionName}: $${r.stateTax.toFixed(0)} | CPP/EI: $${(r.cpp+r.ei).toFixed(0)} | Total Rate: ${effectiveRate}%`
-        : `Fed: $${r.tax.toFixed(0)} | ${r.regionName}: $${r.stateTax.toFixed(0)} | FICA: $${(r.ss+r.medicare).toFixed(0)} | Total Rate: ${effectiveRate}%`;
+        ? `Fed Tax: $${r.tax.toFixed(2)} | ${r.regionName}: $${r.stateTax.toFixed(2)} | CPP: $${r.cpp.toFixed(2)} | EI: $${r.ei.toFixed(2)} | Total Rate: ${effectiveRate}%`
+        : `Fed Tax: $${r.tax.toFixed(2)} | ${r.regionName}: $${r.stateTax.toFixed(2)} | SS: $${r.ss.toFixed(2)} | Medicare: $${r.medicare.toFixed(2)} | Total Rate: ${effectiveRate}%`;
 
     state.resultsCount++;
     localStorage.setItem('resultsCount', state.resultsCount);
