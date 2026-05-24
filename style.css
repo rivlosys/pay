@@ -250,22 +250,6 @@ footer { margin-top: 5rem; padding: 3rem 0; border-top: 1px solid var(--border);
     .footer-links a { margin: 0 0.5rem; }
 }
 
-/* Main Layout Grid Setup */
-@media (min-width: 768px) {
-    main.container.has-results {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 2rem;
-        align-items: start;
-    }
-    main.container.has-results > * {
-        min-width: 0;
-    }
-    .hero, .content-seo, .history-section, .faq-section, .link-grid {
-        grid-column: 1 / -1;
-    }
-}
-
 /* KPI Display Cards */
 .results-grid {
     display: grid;
