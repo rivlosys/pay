@@ -413,7 +413,7 @@ const displayResult = (annualGross, country, period, r, inputVal) => {
             <tr class="total-row" style="font-weight:600;"><td>Hourly Take-home</td><td>$${hourly}/hr</td></tr>
         </table>
         <div class="insight-line" style="margin-top:1rem; font-weight:500; color:var(--primary);">${insight}</div>
-        <p class="result-note muted" style="margin-top:1rem; font-size:0.85rem;">Estimate based on ${yearStr} tax rates. No deductions or credits included.</p>
+    <p class="result-note muted" style="margin-top:1rem; font-size:0.85rem;">Estimate based on current tax rates. No deductions or credits included.</p>
     `;
 
     state.resultsCount++;
