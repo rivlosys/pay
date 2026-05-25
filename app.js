@@ -576,7 +576,7 @@ const handleReset = () => {
         el.h1.textContent = `Salary After Tax Calculator — See Your Take‑Home Pay Instantly`;
     }
 
-    document.title = `Paycheck Calculator USA & Canada — Free Take-Home Pay | Usecos Tools`;
+    document.title = `Paycheck Calculator USA & Canada — Free Take-Home Pay | usecos`;
     el.resultArea.classList.add('hidden');
     el.feedbackRow.classList.add('hidden');
     
