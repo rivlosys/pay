@@ -503,7 +503,7 @@ const updateMetadata = (text, gross, country, period, mode, region) => {
         el.h1.textContent = `${currencySymbol}${formattedGross} Salary After Tax — What Do You Actually Take Home?`;
     }
     
-    document.title = `${text} (${country}) — ${year} Calculator | Usecos Tools`;
+    document.title = `${text} (${country}) — ${year} Calculator | Usecos`;
     if (el.metaDesc) {
         el.metaDesc.content = `Calculated take-home pay: ${text}. Based on ${year} ${country} tax regulations.`;
     }
