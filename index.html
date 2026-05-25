@@ -28,19 +28,21 @@
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://pay.usecos.app/">
     <meta property="og:title" content="Paycheck Calculator USA & Canada — Free Take-Home Pay">
-    <meta property="og:description" content="Free paycheck calculator for USA and Canada. See take-home pay after federal tax, CPP, EI, Social Security.">
-    <meta property="og:site_name" content="Usecos Tools">
+    <meta property="og:description" content="Free paycheck calculator for USA and Canada. See take-home pay after federal, state/province tax, CPP, EI, and Social Security.">
+    <meta property="og:site_name" content="usecos">
     <meta property="og:locale" content="en_US">
+    <meta property="og:image" content="https://pay.usecos.app/og-pay.png">
 
     <!-- Twitter -->
-    <meta property="twitter:card" content="summary_large_image">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:image" content="https://pay.usecos.app/og-pay.png">
     <meta property="twitter:url" content="https://pay.usecos.app/">
     <meta property="twitter:title" content="Paycheck Calculator USA & Canada — Free Take-Home Pay">
-    <meta property="twitter:description" content="Free paycheck calculator for USA and Canada. See take-home pay after federal tax, CPP, EI, Social Security.">
+    <meta property="twitter:description" content="Free paycheck calculator for USA and Canada. See take-home pay after federal, state/province tax, CPP, EI, and Social Security.">
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 
     <script type="application/ld+json">
@@ -138,14 +140,20 @@
     <body>
     <header>
         <nav class="container">
-            <div class="logo">
-                <svg width="28" height="28" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" style="border-radius:6px">
-                    <rect width="32" height="32" rx="8" fill="url(#logo_grad_pay)"/>
-                    <path d="M22 11L13.5 20L10 16.5" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-                    <defs><linearGradient id="logo_grad_pay" x1="0" y1="0" x2="32" y2="32"><stop stop-color="#1b76df"/><stop offset="1" stop-color="#22c98a"/></linearGradient></defs>
-                </svg>
-                <span>use<span style="color:#22c98a">cos</span></span>
-            </div>
+            <a href="https://usecos.app" class="muted" style="text-decoration:none; font-size:13px;">← Back to tools</a>
+            <a href="/" class="logo">
+                <div class="wordmark">
+                    <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <rect width="32" height="32" rx="8" fill="url(#logo_grad_pay)"/>
+                        <path d="M22 11L13.5 20L10 16.5" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                        <defs>
+                            <linearGradient id="logo_grad_pay" x1="0" y1="0" x2="32" y2="32" gradientUnits="userSpaceOnUse">
+                                <stop stop-color="#1b76df"/><stop offset="1" stop-color="#22c98a"/>
+                            </linearGradient>
+                        </defs>
+                    </svg>use<span>cos</span>
+                </div>
+            </a>
             <button id="theme-toggle" aria-label="Toggle dark mode" class="icon-btn">
                 <svg id="sun-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/></svg>
                 <svg id="moon-icon" class="hidden" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
@@ -340,9 +348,9 @@
     <footer>
         <div class="container footer-content">
             <div class="footer-brand">
-                <p class="muted">© <span id="footer-year"></span> use<span style="color:#22c98a">cos</span></p>
+                <p class="muted">© use<span style="color:#22c98a">cos</span>. <span id="footer-year"></span> All rights reserved.</p>
                 <div style="margin-bottom:14px; font-size:12px; color: var(--text-muted);">
-                  🧰 More Free Tools by Usecos &nbsp;·&nbsp;
+                  use<span style="color:#22c98a">cos</span>.app &nbsp;·&nbsp;
                   <a href="https://mortgage.usecos.app" rel="noopener">🏠 Mortgage Calculator</a> &nbsp;·&nbsp;
                   <a href="https://vin.usecos.app" rel="noopener">🚗 VIN Decoder</a> &nbsp;·&nbsp;
                   <span style="color: var(--text-muted); cursor: default;">💳 Paycheck Calculator ← you're here</span>

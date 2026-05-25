@@ -19,7 +19,7 @@ body.dark-mode {
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body { 
-    font-family: 'Inter', sans-serif; 
+    font-family: 'DM Sans', sans-serif; 
     background: var(--bg); 
     color: var(--text); 
     line-height: 1.6; 
@@ -31,8 +31,29 @@ body {
 
 header { background: var(--card-bg); border-bottom: 1px solid var(--border); padding: 0.75rem 0; }
 nav { display: flex; justify-content: space-between; align-items: center; }
-.logo { display: flex; align-items: center; justify-content: center; gap: 8px; font-weight: 600; }
+.logo { display: flex; align-items: center; justify-content: center; gap: 8px; font-weight: 600; text-decoration: none; }
 .logo svg { flex-shrink: 0; }
+
+.wordmark {
+  font-weight: 700;
+  font-size: 28px;
+  letter-spacing: -1px;
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  gap: 0;
+}
+.wordmark svg { margin-right: 6px; }
+.wordmark span {
+  display: inline-block;
+  background: linear-gradient(90deg, #1b76df 0%, #22c98a 50%, #1b76df 100%);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: gradientShift 3s 0.3s ease-in-out infinite alternate;
+}
+@keyframes gradientShift { 0% { background-position: left center; } 100% { background-position: right center; } }
 
 .hero { text-align: center; padding: 4rem 0 3rem; }
 h1 { font-size: 3rem; font-weight: 800; margin-bottom: 0.75rem; transition: opacity 0.3s; letter-spacing: -0.025em; }
