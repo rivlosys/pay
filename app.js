@@ -503,7 +503,7 @@ const updateMetadata = (text, gross, country, period, mode, region) => {
         el.h1.textContent = `${currencySymbol}${formattedGross} Salary After Tax — What Do You Actually Take Home?`;
     }
     
-    document.title = `${text} (${country}) — ${year} Calculator`;
+    document.title = `${text} (${country}) — ${year} Calculator | Usecos Tools`;
     if (el.metaDesc) {
         el.metaDesc.content = `Calculated take-home pay: ${text}. Based on ${year} ${country} tax regulations.`;
     }
@@ -576,7 +576,7 @@ const handleReset = () => {
         el.h1.textContent = `Salary After Tax Calculator — See Your Take‑Home Pay Instantly`;
     }
 
-    document.title = `Paycheck Calculator USA & Canada — Free Take-Home Pay | Rivlosys Tools`;
+    document.title = `Paycheck Calculator USA & Canada — Free Take-Home Pay | Usecos Tools`;
     el.resultArea.classList.add('hidden');
     el.feedbackRow.classList.add('hidden');
     
